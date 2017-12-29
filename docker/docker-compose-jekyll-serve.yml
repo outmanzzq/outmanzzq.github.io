@@ -1,0 +1,8 @@
+version: "2"
+services:
+  blog:
+    #build: .
+    image: mritd/jekyll-blog
+    container_name: jekyll-serve
+    ports:
+      - "80:80"
