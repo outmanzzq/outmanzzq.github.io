@@ -9,3 +9,4 @@ Gemfile.lock
 .bash_sessions/
 .gem/
 .Trash/
+.vscode/
