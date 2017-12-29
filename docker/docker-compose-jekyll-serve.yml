@@ -1,7 +1,0 @@
-version: "2"
-services:
-  blog:
-    build: ./
-    container_name: jekyll-serve
-    ports:
-      - "80:80"
