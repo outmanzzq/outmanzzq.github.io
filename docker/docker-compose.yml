@@ -2,7 +2,7 @@ version: "2"
 services:
   blog:
     #build: ./
-    image: outman/jekyll-blog:v1.0
+    image: outman/jekyll-blog:latest
     container_name: jekyll-serve
     volumes:
       - ../../outmanzzq.github.io:/opt/outmanzzq.github.io

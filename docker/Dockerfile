@@ -14,5 +14,3 @@ RUN apk upgrade --no-cache && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del gcc musl-dev make && \
     rm -rf /var/cache/apk/* && \
-    cd ../ && \
-    rm -rf /root/outmanzzq.github.io
