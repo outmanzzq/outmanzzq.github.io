@@ -13,4 +13,4 @@ RUN apk upgrade --no-cache && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del gcc musl-dev make && \
-    rm -rf /var/cache/apk/* && \
+    rm -rf /var/cache/apk/*
