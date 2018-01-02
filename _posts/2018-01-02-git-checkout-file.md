@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Git 从远程仓库检出指定目录或文件
-categories: git
+categories: Git
 description: Git 从远程仓库检出指定目录或文件
 keywords: Git, git checkout
 ---
@@ -153,3 +153,5 @@ benbendeMac:git-sparse-checkout-study benben$ rm -f .git/info/sparse-checkout
 最后不要忘了配置 Git 的 core.sparseCheckout 为 false 以及移除 .git/info/sparse-checkout 文件。
 
 .git/info/sparse-checkout 中使用和 .gitignore 相同的匹配模式，例如 非匹配 !/dir2/* 以及 /*.java 等。
+
+> 参考链接： <http://xueliang.org/article/detail/20160819001000543>
