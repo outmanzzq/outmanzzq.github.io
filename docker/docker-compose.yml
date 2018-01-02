@@ -1,7 +1,12 @@
 version: "2"
 services:
   blog:
-    build: ./
+    #build: ./
+    image: outman/jekyll-blog:v1.0
     container_name: jekyll-serve
+    volumes:
+      - ../../outmanzzq.github.io:/opt/outmanzzq.github.io
+    working_dir: /opt/outmanzzq.github.io 
+    command: jekyll serve -H 0.0.0.0 -P 80 -w
     ports:
       - "80:80"
