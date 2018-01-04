@@ -11,11 +11,6 @@ keywords: Git, git checkout
 
 > 要想只检出指定的目录或文件，需要在 .git/info/sparse-checkout 文件中指定目录或文件的路径，下面将以一个具体例子介绍 如何使用 Git 的 sparse checkout 。
 
-**目录**
-
-* TOC
-{:toc}
-
 # 环境准备
 
 - OS: MacOS 10.12.6
