@@ -41,90 +41,124 @@ keywords: ext4, format
 
 # 二、操作过程
 
-## 1、格式化TF卡为 ext4
+## 1、TF卡分区
 
 ```shell
-# 查看磁盘，TF卡为/dev/sdb
 [root@centos7 ~]# fdisk -l
 
-磁盘 /dev/sda：21.5 GB, 21474836480 字节，41943040 个扇区
-Units = 扇区 of 1 * 512 = 512 bytes
-扇区大小(逻辑/物理)：512 字节 / 512 字节
-I/O 大小(最小/最佳)：512 字节 / 512 字节
-磁盘标签类型：dos
-磁盘标识符：0x000695a8
+Disk /dev/sda: 8589 MB, 8589934592 bytes
+255 heads, 63 sectors/track, 1044 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0001a415
 
-   设备 Boot      Start         End      Blocks   Id  System
-/dev/sda1   *        2048     1026047      512000   83  Linux
-/dev/sda2         1026048    41943039    20458496   8e  Linux LVM
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *           1          26      204800   83  Linux
+Partition 1 does not end on cylinder boundary.
+/dev/sda2              26          91      524288   82  Linux swap / Solaris
+Partition 2 does not end on cylinder boundary.
+/dev/sda3              91        1045     7658496   83  Linux
 
-磁盘 /dev/mapper/centos-root：18.8 GB, 18756927488 字节，36634624 个扇区
-Units = 扇区 of 1 * 512 = 512 bytes
-扇区大小(逻辑/物理)：512 字节 / 512 字节
-I/O 大小(最小/最佳)：512 字节 / 512 字节
+Disk /dev/sdb: 31.4 GB, 31439454208 bytes
+64 heads, 32 sectors/track, 29983 cylinders
+Units = cylinders of 2048 * 512 = 1048576 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0635d4c6
 
+   Device Boot      Start         End      Blocks   Id  System
+[root@centos7 ~]# fdisk /dev/sdb
 
-磁盘 /dev/mapper/centos-swap：2147 MB, 2147483648 字节，4194304 个扇区
-Units = 扇区 of 1 * 512 = 512 bytes
-扇区大小(逻辑/物理)：512 字节 / 512 字节
-I/O 大小(最小/最佳)：512 字节 / 512 字节
+WARNING: DOS-compatible mode is deprecated. Its strongly recommended to
+         switch off the mode (command 'c') and change display units to
+         sectors (command 'u').
 
+Command (m for help): p
 
-磁盘 /dev/sdb：31.4 GB, 31439454208 字节，61405184 个扇区
-Units = 扇区 of 1 * 512 = 512 bytes
-扇区大小(逻辑/物理)：512 字节 / 512 字节
-I/O 大小(最小/最佳)：512 字节 / 512 字节
-磁盘标签类型：dos
-磁盘标识符：0x0e8ca368
+Disk /dev/sdb: 31.4 GB, 31439454208 bytes
+64 heads, 32 sectors/track, 29983 cylinders
+Units = cylinders of 2048 * 512 = 1048576 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0635d4c6
 
-   设备 Boot      Start         End      Blocks   Id  System
-/dev/sdb1   *          63    61405183    30702560+   c  W95 FAT32 (LBA)
+   Device Boot      Start         End      Blocks   Id  System
 
-# 格式化
-[root@centos7 ~]# mkfs.ext4 /dev/sdb
-mke2fs 1.42.9 (28-Dec-2013)
-/dev/sdb is entire device, not just one partition!
-无论如何也要继续? (y,n) n
-[root@centos7 ~]# mkfs.ext4 /dev/sdb
-mke2fs 1.42.9 (28-Dec-2013)
-/dev/sdb is entire device, not just one partition!
-无论如何也要继续? (y,n) y
-文件系统标签=
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First cylinder (1-29983, default 1):
+Using default value 1
+Last cylinder, +cylinders or +size{K,M,G} (1-29983, default 29983):
+Using default value 29983
+
+Command (m for help): p
+
+Disk /dev/sdb: 31.4 GB, 31439454208 bytes
+64 heads, 32 sectors/track, 29983 cylinders
+Units = cylinders of 2048 * 512 = 1048576 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0635d4c6
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1       29983    30702576   83  Linux
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+```
+
+## 2、格式化TF卡为 ext4
+
+```shell
+[root@centos7 ~]# mkfs.ext4 /dev/sdb1
+mke2fs 1.41.12 (17-May-2010)
+Filesystem label=
 OS type: Linux
-块大小=4096 (log=2)
-分块大小=4096 (log=2)
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
 Stride=0 blocks, Stripe width=0 blocks
-1921360 inodes, 7675648 blocks
+1921360 inodes, 7675644 blocks
 383782 blocks (5.00%) reserved for the super user
-第一个数据块=0
-Maximum filesystem blocks=2155872256
+First data block=0
+Maximum filesystem blocks=4294967296
 235 block groups
 32768 blocks per group, 32768 fragments per group
 8176 inodes per group
 Superblock backups stored on blocks:
         32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000
 
-Allocating group tables: 完成
-正在写入inode表: 完成
-Creating journal (32768 blocks): 完成
-Writing superblocks and filesystem accounting information: 完成
+Writing inode tables: done
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 21 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
 ```
 
 ## 2、关闭 ext4 日志功能
 
 ```shell
 # 查看是否开启日志功能
-[root@centos7 ~]# dumpe2fs /dev/sdb | grep 'Filesystem features' | grep 'has_journal'
-dumpe2fs 1.42.9 (28-Dec-2013)
-Filesystem features:      has_journal ext_attr resize_inode dir_index filetype extent 64bit flex_bg sparse_super large_file huge_file uninit_bg dir_nlink extra_isize
+[root@centos7 ~]# dumpe2fs /dev/sdb1 | grep 'Filesystem features' | grep 'has_journal'
+dumpe2fs 1.41.12 (17-May-2010)
+Filesystem features:      has_journal ext_attr resize_inode dir_index filetype extent flex_bg sparse_super large_file huge_file uninit_bg dir_nlink extra_isize
 
 # 关闭日志功能
-[root@centos7 ~]# tune2fs -O ^has_journal /dev/sdb
-tune2fs 1.42.9 (28-Dec-2013)
+[root@centos7 ~]# tune2fs -O ^has_journal /dev/sdb1
+tune2fs 1.41.12 (17-May-2010)
 
 #检查
-[root@centos7 ~]# dumpe2fs /dev/sdb | grep 'Filesystem features' | grep 'has_journal'
-dumpe2fs 1.42.9 (28-Dec-2013)
+[root@centos7 ~]# dumpe2fs /dev/sdb1 | grep 'Filesystem features' | grep 'has_journal'
+dumpe2fs 1.41.12 (17-May-2010)
 
 # 弹出TF卡
 [root@centos7 ~]# eject /dev/sdb
@@ -134,20 +168,18 @@ dumpe2fs 1.42.9 (28-Dec-2013)
 
 ```shell
 # 开启日志
-[root@centos7 ~]# tune2fs -O has_journal /dev/sdb
+[root@centos7 ~]# tune2fs -O has_journal /dev/sdb1
 tune2fs 1.42.9 (28-Dec-2013)
 Creating journal inode: 完成
 
 #检查
-[root@centos7 ~]# dumpe2fs /dev/sdb | grep 'Filesystem features' | grep 'has_journal'
+[root@centos7 ~]# dumpe2fs /dev/sdb1 | grep 'Filesystem features' | grep 'has_journal'
 dumpe2fs 1.42.9 (28-Dec-2013)
 Filesystem features:      has_journal ext_attr resize_inode dir_index filetype extent 64bit flex_bg sparse_super large_file huge_file uninit_bg dir_nlink extra_isize
 ```
 
-## 4、Windows 系统读取 ext4 格式磁盘工具ext2fsd
+## 4、Windows 系统读取 ext4 格式磁盘工具ext2fsd （注意：ext4 只读不支持写入！）
 
->注意：ext4 格式只读不支持写入！
-
-下载链接：<https://sourceforge.net/projects/ext2fsd/files/latest/download?source=files>
+<https://sourceforge.net/projects/ext2fsd/files/latest/download?source=files>
 
 > 参考链接：<http://www.cnblogs.com/jusonalien/p/5032973.html>
