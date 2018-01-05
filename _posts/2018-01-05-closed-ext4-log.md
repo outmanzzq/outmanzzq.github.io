@@ -144,8 +144,10 @@ dumpe2fs 1.42.9 (28-Dec-2013)
 Filesystem features:      has_journal ext_attr resize_inode dir_index filetype extent 64bit flex_bg sparse_super large_file huge_file uninit_bg dir_nlink extra_isize
 ```
 
-## 4、Windows 系统读取 ext4 格式磁盘工具ext2fsd （注意：ext4 只读不支持写入！）
+## 4、Windows 系统读取 ext4 格式磁盘工具ext2fsd
 
-<https://sourceforge.net/projects/ext2fsd/files/latest/download?source=files>
+>注意：ext4 格式只读不支持写入！
+
+下载链接：<https://sourceforge.net/projects/ext2fsd/files/latest/download?source=files>
 
 > 参考链接：<http://www.cnblogs.com/jusonalien/p/5032973.html>
