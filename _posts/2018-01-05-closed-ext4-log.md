@@ -121,8 +121,6 @@ Filesystem features:      has_journal ext_attr resize_inode dir_index filetype e
 # 关闭日志功能
 [root@centos7 ~]# tune2fs -O ^has_journal /dev/sdb
 tune2fs 1.42.9 (28-Dec-2013)
-[root@centos7 ~]# dumpe2fs /dev/sdb | grep 'Filesystem features' | grep 'has_journal'
-dumpe2fs 1.42.9 (28-Dec-2013)
 
 #检查
 [root@centos7 ~]# dumpe2fs /dev/sdb | grep 'Filesystem features' | grep 'has_journal'
