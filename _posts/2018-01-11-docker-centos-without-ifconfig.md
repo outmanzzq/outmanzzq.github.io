@@ -21,7 +21,7 @@ keywords: docker, centos, ifconfig
 ```shell
 ➜  docker run -dit --name 'test-c7' centos:7
 3d8e19cafde90a7d964f4b3a1bcf4ccdd6da4135c8f885fe5a098161e565d106
-➜  docker ps 
+➜  docker ps
 CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS                NAMES
 3d8e19cafde9        centos:7                    "/bin/bash"              12 seconds ago      Up 9 seconds                             test-c7
 
@@ -30,7 +30,7 @@ CONTAINER ID        IMAGE                       COMMAND                  CREATED
 oci runtime error: exec failed: container_linux.go:265: starting container process caused "exec: \"ifconfig\": executable file not found in $PATH"
 ```
 
-# 2. 进入容器查询命令依赖包并安装
+## 2. 进入容器查询命令依赖包并安装
 
 ```shell
 # 可看到 ifconfig 命令依赖net-tools
@@ -60,7 +60,7 @@ Filename    : /sbin/ifconfig
 [root@3d8e19cafde9 /]# yum install -y net-tools
 ```
 
-# 3. 再次查询，正确获取容器 IP，问题解决。
+## 3. 再次查询，正确获取容器 IP，问题解决。
 
 ```shell
 # 查询方式一：容器内直接查询
