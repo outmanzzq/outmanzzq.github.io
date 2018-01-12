@@ -8,13 +8,13 @@ keywords: Mac
 
 快捷键约定：
 
-C --> Ctrl
+C --> Ctrl  ⌃
 
-S --> Shift
+S --> Shift ⇧
 
-M --> Alt/Option
+M --> Alt/Option ⌥
 
-Cmd --> Command
+Cmd --> Command  ⌘
 
 [Mac 键盘快捷键官方参考](https://support.apple.com/zh-cn/HT201236)
 
@@ -23,13 +23,14 @@ Cmd --> Command
 | 功能                   | 快捷键  |
 |:-----------------------|:--------|
 | 显示桌面               | F11     |
-| 切换窗口全屏状态       | C-Cmd-F |
-| 隐藏当前程序的所有窗口 | Cmd-H   |
+| 切换窗口全屏状态        | C-Cmd-F |
+| 隐藏当前程序的所有窗口   | Cmd-H   |
 | 最小化窗口             | Cmd-M   |
 | 关闭窗口               | Cmd-W   |
-| 关闭当前程序           | Cmd-Q   |
+| 关闭当前程序            | Cmd-Q   |
 | 新建标签               | Cmd-T   |
 | 新建窗口               | Cmd-N   |
+| 显示隐藏文件            | Cmd-S-. |
 
 ## 程序
 
