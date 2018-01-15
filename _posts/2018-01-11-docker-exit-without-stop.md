@@ -27,7 +27,7 @@ centos                                                 7                   ff426
 ➜ docker run -dit --name 'test-c7-exit' centos:7
 a053d7016ed133c969f26ac6c31013e351d3c646ba1ea94b0b906562deb97116
 
-➜  docker git:(master) docker ps
+➜ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 a053d7016ed1        centos:7            "/bin/bash"         5 seconds ago       Up 2 seconds
 ```
@@ -71,7 +71,7 @@ a053d7016ed1        centos:7            "/bin/bash"         About a minute ago  
 [root@a053d7016ed1 /]# read escape sequence
 
 # 再次检查容器状态，发现仍在运行！
-➜  docker git:(master) docker ps
+➜ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
 a053d7016ed1        centos:7            "/bin/bash"         About a minute ago   Up 26 seconds                           test-c7-exit
 
