@@ -495,4 +495,18 @@ push
 
 version
 
+# 五、相关资源
+
+## 软件下载
+
+- 官网 <http://www.vagrantup.com>
+- 官方下载地址 <https://www.vagrantup.com/downloads.html>
+- 旧版本下载 <https://releases.hashicorp.com/vagrant/>
+
+## Box下载
+
+- 官方仓库 <https://atlas.hashicorp.com/boxes/search>
+- 官方镜像 <https://vagrantcloud.com/boxes/search>
+- 第三方仓库 <http://www.vagrantbox.es/>
+
 > 原文链接：<http://blog.csdn.net/54powerman/article/details/50669807>
