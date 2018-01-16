@@ -2,11 +2,11 @@
 layout: post
 title: Vagrant 学习 - Vagrantfile
 categories: vagrant
-description: Vagrant学习 - Vagrantfile
+description: Vagrant 学习 - Vagrantfile
 keywords: Vagrant, Vagrantfile
 ---
 
-> 有时候，我希望对 vm 做更详尽的配置，比如配置一次创建一组 vm ，搭建一个 mfs 的测试环境，他需要一台服务器做 mfsmaster ，两台服务器做 mfs chunk server ，一台服务器做 metalogger ，还有一台服务器做 mfs client 进行测试。
+> 有时候，希望对 vm 做更详尽的配置，比如配置一次创建一组 vm ，搭建一个 mfs 的测试环境，需要一台服务器做 mfsmaster ，两台服务器做 mfs chunk server ，一台服务器做 metalogger ，还有一台服务器做 mfs client 进行测试。
 
 下面是一组服务测试 mfs 的 vagrant file 范例:
 
