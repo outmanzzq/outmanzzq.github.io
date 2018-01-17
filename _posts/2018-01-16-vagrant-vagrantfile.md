@@ -195,7 +195,8 @@ config.vm.network "public_network"
 
 用来让 host 与 vm 二者进行文件同步。
 
-config.vm.synced_folder "../data", "/vagrant_data"
+`config.vm.synced_folder "../data", "/vagrant_data"`
+
 设置同步文件夹，让主机与 vm 中的一个文件夹内容保持一致。
 
 缺省地，vagrant 会把工作目录映射到 vm 的 /vagrant 目录，如果需要增加更多同步文件夹，使用上面的配置，第一个文件夹为 host 主机的目录，第二个文件夹为 vm 中的目录。
@@ -275,7 +276,7 @@ v.customize ["modifyvm", :id, "--name", “mfsserver3", "--memory", “2048"]
 
 扩展一下，如果创建的虚机很多，vm 都混杂在一起，我们都知道 virtualbox 支持对vm进行分组。要在 vagrant 使用分组，可以在 mfs的vagrantfile 中如下自定义：
 
-`vb.customize ["modifyvm",:id,"--groups",”/mfs"]
+`vb.customize ["modifyvm",:id,"--groups",”/mfs"]`
 
 参数说明：
 
