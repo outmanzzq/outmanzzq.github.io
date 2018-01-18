@@ -346,13 +346,13 @@ SHELL
 
 ## 2.2 服务主机资源规划
 
-VM 主机名 | 接口 | IP | 用途
+VM 主机名 | 网卡 | IP | 用途
 -|-|-|-
-Master | eth0 | 10.0.0.7 | 外网管理 IP，用于 WAN 数据转发
--| eth1 |172.16.1.7 | 内网管理 IP，用于 LAN 数据转发
+Master | eth1 | 10.0.0.7 | 外网管理 IP，用于 WAN 数据转发
+-| eth2 |172.16.1.7 | 内网管理 IP，用于 LAN 数据转发
 -| vip  |10.0.0.17  | 用于提供应用程序 A 挂载服务
-BACKUP | eth0 | 10.0.0.8 | 外网管理 IP，用于 WAN 数据转发
--| eth1 | 172.16.1.8 | 内网管理 IP，用于 LAN 数据转发
+BACKUP | eth1 | 10.0.0.8 | 外网管理 IP，用于 WAN 数据转发
+-| eth2 | 172.16.1.8 | 内网管理 IP，用于 LAN 数据转发
 -| vip  | 10.0.0.18  | 用于提供用于程序 B 挂载服务
 
 ## 2.3 Vagrantfile 文件内容
@@ -412,8 +412,8 @@ Current machine states:
 hbmaster                  not created (virtualbox)
 hbbackup                  not created (virtualbox)
 
-# 启动
-$ vagrant reload --provision
+# 启动 (重载使用命令： vagrant reload --provision)
+$ vagrant up
 ==> hbmaster: Attempting graceful shutdown of VM...
 ==> hbmaster: Clearing any previously set forwarded ports...
 ==> hbmaster: Clearing any previously set network interfaces...
