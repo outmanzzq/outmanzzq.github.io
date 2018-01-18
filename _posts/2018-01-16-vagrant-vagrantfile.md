@@ -90,7 +90,7 @@ mfsclient                 not created (virtualbox)
 
 Vagrantfile 配置文件的格式简单介绍一下。
 
-## 1. 文件头
+## 1.1 文件头
 
 说明文件的格式信息，处理方式等。
 
@@ -101,7 +101,7 @@ Vagrantfile 配置文件的格式简单介绍一下。
 
 指定使用 ruby 格式，vi 进行编辑的，所有文件都采用这个文件头即可。
 
-## 2. 通用数据
+## 1.2 通用数据
 
 设置一些基础数据，供配置信息中调用。
 
@@ -114,7 +114,7 @@ app_servers = {
 
 这里是定义一个 hashmap，以 key-value 方式来存储 vm 主机名和 ip 地址。
 
-## 3. 配置信息
+## 1.3 配置信息
 
 ```YAML
 ENV["LC_ALL"] = "en_US.UTF-8"
@@ -132,15 +132,15 @@ end
 do … end 为配置的开始结束符，所有配置信息都写在这两段代码之间。
 config 是为当前配置命名，你可以指定任意名称，如 myvmconfig ，在后面引用的时候，改为自己的名字即可。
 
-### 3.1 基本配置信息
+### 1.3.1 基本配置信息
 
-#### 3.1.1 镜像
+#### 镜像
 
 `config.vm.box = "ubuntu/precise64"`
 
 指定当前 vm 使用的 box 镜像名称，值为本地仓库的镜像名。
 
-#### 3.1.2 定义vm的configure配置节点
+#### 定义vm的configure配置节点
 
 ```YAML
 config.vm.define :mfsmaster do |mfsmaster_config|
@@ -151,7 +151,7 @@ end
 表示在 config 配置中，定义一个名为 mfsmaster 的 vm 配置，该节点下的配置信息命名为 mfsmaster_config ；
 如果该 Vagrantfile 配置文件只定义了一个 vm ，这个配置节点层次可忽略。
 
-##### 3.1.2.1 vm 网络环境配置
+##### vm 网络环境配置
 
 vagrant 的网络连接方式有三种：
 
@@ -191,7 +191,7 @@ config.vm.network "public_network"
 
 我使用的是 wifi ，选择 1，继续。
 
-##### 3.1.2.2 同步文件夹配置
+##### 同步文件夹配置
 
 用来让 host 与 vm 二者进行文件同步。
 
@@ -201,13 +201,13 @@ config.vm.network "public_network"
 
 缺省地，vagrant 会把工作目录映射到 vm 的 /vagrant 目录，如果需要增加更多同步文件夹，使用上面的配置，第一个文件夹为 host 主机的目录，第二个文件夹为 vm 中的目录。
 
-##### 3.1.2.3 设置主机名
+##### 设置主机名
 
 指定 vm 的 hostname ，会覆盖 vm 中 /etc/hostsname 中的设置。
 
 `config.vm.hostname = “mfsmaster.vagrant.internal"`
 
-##### 3.1.2.4 端口转发
+##### 端口转发
 
 指定将 host 的 8080 端口请求，转发到 vm 的 80 端口，这样访问 http://host:8080 就相当于访问 http://vm:80 了。结合《[WiKi-Vagrant](https://outmanzzq.github.io/wiki/vagrant/)》中的 share 共享 http 功能，我们就可以做到让 internet 每个角落的用户访问 vm 里的 http 服务了。
 
@@ -219,7 +219,7 @@ guest 和 host 是必须的，还有几个可选属性：
 - host_ip：`字符串，host 指定绑定的 Ip，缺省为 0.0.0.0`
 - protocol：`字符串，可选 TCP 或 UDP，缺省为 TCP`
 
-##### 3.1.2.5 vm provider 配置
+### 1.3.2 vm provider 配置
 
 ```YAML
 config.vm.provider :virtualbox do |vb|
@@ -227,7 +227,7 @@ config.vm.provider :virtualbox do |vb|
 end
 ```
 
-3.1.2.2.1 vm provider 通用配置
+#### vm provider 通用配置
 
 虚机容器提供者配置，对于不同的 provider ，特有的一些配置，此处配置信息是针对 virtualbox 定义一个提供者，命名为 vb ，跟前面一样，这个名字随意取，只要节点内部调用一致即可。
 
@@ -244,7 +244,7 @@ vb.cpus = 2
 # 设置 CPU 个数
 ```
 
-3.1.2.2.2 vm provider 个性化配置（virtualbox）
+##### vm provider 个性化配置（virtualbox）
 
 上面的 provider 配置是通用的配置，针对不同的虚拟机，还有一些的个性的配置，通过 vb.customize 配置来定制。
 
@@ -284,7 +284,7 @@ v.customize ["modifyvm", :id, "--name", “mfsserver3", "--memory", “2048"]
 可以指定多个分组，用逗号分开，如:“ /dev,/mfs ”
 每一个 vm 创建以后，都会放到 mfs 分组里。可以在 virtualbox 管理界面查看。
 
-#### 3.1.3 一组相同配置的 vm
+### 1.3.3 一组相同配置的 vm
 
 前面配置了一组 vm 的 hash map ，定义一组 vm 时，使用如下节点遍历。
 
@@ -312,7 +312,7 @@ end
 end
 ```
 
-### 3.2 中央仓库配置
+### 1.3.4 中央仓库配置
 
 指定 box 镜像 push 发布的地址，供 box 镜像管理者使用。普通使用者不需关心。
 
@@ -322,7 +322,7 @@ config.push.define "atlas" do |push|
 end
 ```
 
-### 3.3 vm部署
+### 1.3.5 vm 部署 ( provision )
 
 用来加载 box 以后，对 vm 的环境进行一些定制，比如设置环境变量，安装软件，部署程序等。如：
 
@@ -333,6 +333,209 @@ config.vm.provision "shell", inline: <<-SHELL
 SHELL
 ```
 
-这部分内容不少，待续。
+# 二、 进阶
+
+## 2.1 部署两台 Heartbeat 主／备服务器，要求：
+
+- 操作系统： CentOS 6.6 x64
+- 主机创建完成后同步设置预定义网卡（ IP、VIP ）
+- 基于辅助 IP （ ip addr 命令）配置 VIP
+- 系统启动完毕后打印 IP 信息
+
+## 2.2 服务主机资源规划
+
+vm hostname | 接口 | IP | 用途
+-|-|-|-
+Master | eth0 | 10.0.0.7 | 外网管理 IP，用于 WAN 数据转发
+-| eth1 |172.16.1.7 | 内网管理 IP，用于 LAN 数据转发
+-| vip  |10.0.0.17  | 用于提供应用程序 A 挂载服务
+BACKUP | eth0 | 10.0.0.8 | 外网管理 IP，用于 WAN 数据转发
+-| eth1 | 172.16.1.8 | 内网管理 IP，用于 LAN 数据转发
+-| vip  | 10.0.0.18  | 用于提供用于程序 B 挂载服务
+
+## 2.3 Vagrantfile 文件内容
+
+```YAML
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos-6.6-x86_64"
+
+  # 定义 master
+  config.vm.define :hbmaster do |hbmaster_config|
+    hbmaster_config.vm.network :public_network, ip: "192.168.11.7"
+    hbmaster_config.vm.network :private_network, ip: "172.16.1.7"
+    hbmaster_config.vm.hostname = "master"
+    hbmaster_config.vm.provision "shell", inline: <<-SHELL
+      sudo ip addr add 10.0.0.17/24 dev eth2
+      ip ad |grep 'inet'
+    SHELL
+    config.vm.provider :virtualbox do |vb|
+      vb.name = "hbmaster"
+      vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      vb.customize ["modifyvm", :id, "--cpus", "2"]
+      vb.cpus = 2
+    end
+  end
+
+  # 定义 backup
+  config.vm.define :hbbackup do |hbbackup_config|
+    hbbackup_config.vm.network :public_network, ip: "192.168.11.8"
+    hbbackup_config.vm.network :private_network, ip: "172.16.1.8"
+    hbbackup_config.vm.hostname = "backup"
+    hbbackup_config.vm.provision "shell", inline: <<-SHELL
+      sudo ip addr add 10.0.0.18/24 dev eth2
+      ip ad |grep 'inet'
+    SHELL
+    hbbackup_config.vm.provider "virtualbox" do |vb|
+      vb.name = "hbbackup"
+    end
+  end
+end
+```
+
+## 2.4 启动虚拟机
+
+```shell
+# 进行语法检查
+$ vagrant validate
+Vagrantfile validated successfully.
+
+# 查看 vm 状态
+$ vagrant status
+Current machine states:
+
+hbmaster                  not created (virtualbox)
+hbbackup                  not created (virtualbox)
+
+# 启动
+$ vagrant reload --provision
+==> hbmaster: Attempting graceful shutdown of VM...
+==> hbmaster: Clearing any previously set forwarded ports...
+==> hbmaster: Clearing any previously set network interfaces...
+==> hbmaster: Preparing network interfaces based on configuration...
+    hbmaster: Adapter 1: nat
+    hbmaster: Adapter 2: bridged
+    hbmaster: Adapter 3: hostonly
+==> hbmaster: Forwarding ports...
+    hbmaster: 22 (guest) => 2222 (host) (adapter 1)
+==> hbmaster: Running 'pre-boot' VM customizations...
+==> hbmaster: Booting VM...
+==> hbmaster: Waiting for machine to boot. This may take a few minutes...
+    hbmaster: SSH address: 127.0.0.1:2222
+    hbmaster: SSH username: vagrant
+    hbmaster: SSH auth method: private key
+    hbmaster: Warning: Connection reset. Retrying...
+    hbmaster: Warning: Remote connection disconnect. Retrying...
+    hbmaster: Warning: Connection aborted. Retrying...
+    hbmaster: Warning: Connection reset. Retrying...
+    hbmaster: Warning: Remote connection disconnect. Retrying...
+    hbmaster: Warning: Connection aborted. Retrying...
+    hbmaster: Warning: Connection reset. Retrying...
+    hbmaster: Warning: Remote connection disconnect. Retrying...
+    hbmaster: Warning: Connection aborted. Retrying...
+==> hbmaster: Machine booted and ready!
+==> hbmaster: Checking for guest additions in VM...
+    hbmaster: The guest additions on this VM do not match the installed version of
+    hbmaster: VirtualBox! In most cases this is fine, but in rare cases it can
+    hbmaster: prevent things such as shared folders from working properly. If you see
+    hbmaster: shared folder errors, please make sure the guest additions within the
+    hbmaster: virtual machine match the version of VirtualBox you have installed on
+    hbmaster: your host and reload your VM.
+    hbmaster:
+    hbmaster: Guest Additions Version: 4.3.28
+    hbmaster: VirtualBox Version: 5.1
+==> hbmaster: Setting hostname...
+==> hbmaster: Configuring and enabling network interfaces...
+    hbmaster: SSH address: 127.0.0.1:2222
+    hbmaster: SSH username: vagrant
+    hbmaster: SSH auth method: private key
+==> hbmaster: Mounting shared folders...
+    hbmaster: /vagrant => F:/study/vagrant
+==> hbmaster: Running provisioner: shell...
+    hbmaster: Running: inline script
+==> hbmaster:     inet 127.0.0.1/8 scope host lo
+==> hbmaster:     inet6 ::1/128 scope host
+==> hbmaster:     inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0
+==> hbmaster:     inet6 fe80::a00:27ff:fe2d:823a/64 scope link
+==> hbmaster:     inet 192.168.11.7/24 brd 192.168.11.255 scope global eth1
+==> hbmaster:     inet6 fe80::a00:27ff:fe39:2118/64 scope link tentative dadfailed
+==> hbmaster:     inet 172.16.1.7/24 brd 172.16.1.255 scope global eth2
+==> hbmaster:     inet 10.0.0.17/24 scope global eth2
+==> hbmaster:     inet6 fe80::a00:27ff:fe54:639b/64 scope link
+==> hbbackup: Clearing any previously set forwarded ports...
+==> hbbackup: Fixed port collision for 22 => 2222. Now on port 2200.
+==> hbbackup: Clearing any previously set network interfaces...
+==> hbbackup: Preparing network interfaces based on configuration...
+    hbbackup: Adapter 1: nat
+    hbbackup: Adapter 2: bridged
+    hbbackup: Adapter 3: hostonly
+==> hbbackup: Forwarding ports...
+    hbbackup: 22 (guest) => 2200 (host) (adapter 1)
+==> hbbackup: Running 'pre-boot' VM customizations...
+==> hbbackup: Booting VM...
+==> hbbackup: Waiting for machine to boot. This may take a few minutes...
+    hbbackup: SSH address: 127.0.0.1:2200
+    hbbackup: SSH username: vagrant
+    hbbackup: SSH auth method: private key
+    hbbackup: Warning: Connection reset. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Connection reset. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Remote connection disconnect. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Remote connection disconnect. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Connection reset. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Remote connection disconnect. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Remote connection disconnect. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Connection reset. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Connection reset. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+    hbbackup: Warning: Remote connection disconnect. Retrying...
+    hbbackup: Warning: Connection aborted. Retrying...
+==> hbbackup: Machine booted and ready!
+==> hbbackup: Checking for guest additions in VM...
+    hbbackup: The guest additions on this VM do not match the installed version of
+    hbbackup: VirtualBox! In most cases this is fine, but in rare cases it can
+    hbbackup: prevent things such as shared folders from working properly. If you see
+    hbbackup: shared folder errors, please make sure the guest additions within the
+    hbbackup: virtual machine match the version of VirtualBox you have installed on
+    hbbackup: your host and reload your VM.
+    hbbackup:
+    hbbackup: Guest Additions Version: 4.3.28
+    hbbackup: VirtualBox Version: 5.1
+==> hbbackup: Setting hostname...
+==> hbbackup: Configuring and enabling network interfaces...
+    hbbackup: SSH address: 127.0.0.1:2200
+    hbbackup: SSH username: vagrant
+    hbbackup: SSH auth method: private key
+==> hbbackup: Mounting shared folders...
+    hbbackup: /vagrant => F:/study/vagrant
+==> hbbackup: Running provisioner: shell...
+    hbbackup: Running: inline script
+==> hbbackup:     inet 127.0.0.1/8 scope host lo
+==> hbbackup:     inet6 ::1/128 scope host
+==> hbbackup:     inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0
+==> hbbackup:     inet6 fe80::a00:27ff:fe2d:823a/64 scope link
+==> hbbackup:     inet 192.168.11.8/24 brd 192.168.11.255 scope global eth1
+==> hbbackup:     inet6 fe80::a00:27ff:fe85:7df0/64 scope link tentative dadfailed
+==> hbbackup:     inet 172.16.1.8/24 brd 172.16.1.255 scope global eth2
+==> hbbackup:     inet 10.0.0.18/24 scope global eth2
+==> hbbackup:     inet6 fe80::a00:27ff:fe9b:fa4f/64 scope link
+```
+
+## 2.5 关于 provision 常用命令
+
+- vagrant provision `执行所有 vm provision 定义 shell 命令。`
+- vagrant provision vm-machine `执行指定 vm provision 定义 shell 命令。`
+- vagrant reload ---provision `重建所有 vm ，并执行所有 vm provision 定义 shell 命令.`
+- vagrant reload vm-machine ---provision `重建指定 vm，并执行其 provision 定义 shell 命令。`
 
 > 原文链接： <http://blog.csdn.net/54powerman/article/details/50676320>
