@@ -111,4 +111,4 @@ chainloader (${root})/efi/Boot/bkpbootx64.efi
 ### END /etc/grub.d/25_custom ###
 ```
 
-参考连接：https://blog.csdn.net/piaocoder/article/details/50589667
+> 参考连接：<https://blog.csdn.net/piaocoder/article/details/50589667>
