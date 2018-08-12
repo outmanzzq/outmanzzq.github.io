@@ -214,7 +214,7 @@ web管理界面点击: 配置=》主机=》zabbix-server, agent代理程序的�
 
 ![ ](/images/20180812-zabbix-config-02.png)
 
-## 2. 被监控端 zabbix agent 安装
+## 被监控端 zabbix agent 安装
 
 安装 zabbix-agent,并在/etc/zabbix/zabbix_agentd.conf 中将server 参数指定 zabbix-server IP即可。
 
