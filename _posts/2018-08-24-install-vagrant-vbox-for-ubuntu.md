@@ -26,9 +26,11 @@ keywords: ubuntu,vagrant
 
 ```bash
 #1. 更换阿里云软件源
-$ sudo cp /etc/apt/source.list{,.ori}
+# change to root
+$ sudo -i
+$ cp /etc/apt/sources.list{,.ori}
 
-$ sudo cat > /etc/apt/source.list << EOF
+$ cat > /etc/apt/sources.list <<EOF
 deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
 deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
 
@@ -45,23 +47,22 @@ deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe 
 deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
 EOF
 
-$ sudo apt update && sudo apt upgrade -y
+$ apt update && sudo apt upgrade -y
 
 #2. 安装常用软件
-$ sudo apt install git lrzsz tree curl wget build-essential linux-headers-4.15.0-20-generic -y
+$ apt install git lrzsz tree curl wget build-essential linux-headers-4.15.0-20-generic -y
 
 #3. 生成工作目录
-$ sudo mkdir -p /server/{tools,scripts,backup}
-$ cd /server/tools
+$ mkdir -p /server/{tools,scripts,backup} && cd /server/tools
 ```
 
 ## 2. 下载并安装软件包
 
 ```bash
 #下载
-$ sudo wget https://releases.hashicorp.com/vagrant/2.1.2/vagrant_2.1.2_x86_64.deb
+$ wget https://releases.hashicorp.com/vagrant/2.1.2/vagrant_2.1.2_x86_64.deb
 
-$ sudo wget https://vagrantcloud.com/generic/boxes/alpine37/versions/1.8.24/providers/virtualbox.box
+$ wget https://download.virtualbox.org/virtualbox/5.2.18/virtualbox-5.2_5.2.18-124319~Ubuntu~bionic_amd64.deb
 
 #检查
 $ ll
@@ -72,17 +73,18 @@ drwxr-xr-x 6 root root     4096 8月  23 23:48 ../
 -rw-r--r-- 1 root root 68127004 8月  23 23:40 virtualbox-5.2_5.2.18-124319~Ubuntu~bionic_amd64.deb
 
 #安装
-$ sudo dpkg -i virtualbox-5.2_5.2.18-124319~Ubuntu~bionic_amd64.deb
-#加载 vboxdrv kernel 模块
-$ sudo /sbin/vboxconfig
+$ dpkg -i virtualbox-5.2_5.2.18-124319~Ubuntu~bionic_amd64.deb
 
-$ sudo dpkg -i vagrant_2.1.2_x86_64.deb
+$ dpkg -i vagrant_2.1.2_x86_64.deb
 
 #如报错，则执行此命令修复安装
-$ sudo apt install -f
+$ apt install -f -y
+
+#加载 vboxdrv kernel 模块
+$ /sbin/vboxconfig
 
 # 检查
-$ sudo vagrant -v
+$ vagrant -v
 Vagrant 2.1.2
 
 ```
@@ -91,26 +93,25 @@ Vagrant 2.1.2
 
 ```bash
 # 格式
-$ sudo vagrant box add {title} {url}
-$ sudo vagrant init {title}
-$ sudo vagrant up
+$ vagrant box add {title} {url}
+$ vagrant init {title}
+$ vagrant up
 ```
 
 ## 4. 示例（ Alpine 镜像）
 
 ```bash
-$ sudo mkdir vagrant
-$ cd vagrant/
+$ mkdir -p /server/vagrant && cd /server/vagrant
 
-$ sudo vagrant init
-$ sudo cat > Vagrantfile <<EOF 
+$ vagrant init
+$ cat > Vagrantfile <<EOF 
 Vagrant.configure("2") do |config|
   config.vm.box = "generic/alpine37"
   config.vm.box_version = "1.8.24"
 end
 EOF
 
-$ sudo vagrant status
+$ vagrant status
 Current machine states:
 
 default                   not created (virtualbox)
@@ -121,9 +122,9 @@ default provider will be shown. So if a provider is not listed,
 then the machine is not created for that environment.
 
 #启动（如果 box 下载不下来，挂代理！或直接将 xxx.box 链接手动下载，再导入 box）
-$ sudo vagrant up
+$ vagrant up
 
-$ sudo vagrant status
+$ vagrant status
 
 Current machine states:
 
@@ -135,7 +136,7 @@ suspend the virtual machine. In either case, to restart it again,
 simply run `vagrant up`.
 
 #进入虚拟机
-$ sudo vagrant ssh
+$ vagrant ssh
 localhost:~$ df -hP
 Filesystem                Size      Used Available Capacity Mounted on
 devtmpfs                 10.0M         0     10.0M   0% /dev
@@ -166,3 +167,5 @@ $ vagrant ssh  　  # SSH 至虚拟机
 $ vagrant status   # 查看虚拟机运行状态
 $ vagrant destroy  # 销毁当前虚拟机
 ```
+
+> Vagrant 更多命令：<https://outmanzzq.github.io/wiki/vagrant/>
