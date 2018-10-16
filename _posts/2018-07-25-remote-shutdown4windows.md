@@ -110,7 +110,18 @@ keywords: shutdown,remote,windows
 :: 远程关闭被控机脚本
 @echo off
 
-shutdown /m \\192.168.100.20  /s -t 60
+::被控制机1: 192.168.100.20
+::控制机: 192.168.100.10
+
+set IPs=192.168.100.20,192.168.100.10
+
+for %%a in (%IPs%) do (
+  ping %%a -n 2 | find /i "TTL" >nul && (
+    shutdown /m %%a /s /t 0
+  )
+)
+
+exit
 ```
 
 > 不加 -t 参数默认1分钟， -t 0 表示立即关机
