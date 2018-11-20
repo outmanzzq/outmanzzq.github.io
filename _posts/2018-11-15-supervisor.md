@@ -7,10 +7,7 @@ keywords: Linux,supervisor
 ---
 
 > supervisor管理进程，是通过fork/exec的方式将这些被管理的进程当作supervisor的子进程来启动，所以我们只需要将要管理进程的可执行文件的路径添加到supervisor的配置文件中就好了。此时被管理进程被视为supervisor的子进程，若该子进程异常中断，则父进程可以准确的获取子进程异常中断的信息，通过在配置文件中设置autostart=ture，可以实现对异常中断的子进程的自动重启。
-
 > 本文基于vagrant+vbox构建Centos7系统，安装测试supervisor工具使用。
-
-# 环境说明
 
 - vagrant：1.9.5
 - vbox: 5.1.30
@@ -19,9 +16,9 @@ keywords: Linux,supervisor
 > box 下载地址拼接规则：https://my.oschina.net/cxgphper/blog/1940644
 
 - Centos 7.5
-    - IP: 192.168.11.150
-    - user: root
-    - passwd: root
+  - IP: 192.168.11.150
+  - user: root
+  - passwd: root
 - supervisor: 3.1.4-1
 
 > supervisor官网地址：http://supervisord.org/
@@ -44,70 +41,71 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     ##设置时区
-	sudo timedatectl set-timezone Asia/Shanghai
+    sudo timedatectl set-timezone Asia/Shanghai
 
-	##生成工作目录
-	sudo mkdir -p /server/{tools,scripts,backup,docker-compose}
+    ##生成工作目录
+    sudo mkdir -p /server/{tools,scripts,backup,docker-compose}
 
-	##开启ssh root密码登录
-	sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
-	sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-	sudo systemctl restart sshd
-	# set root password
-	echo 'root' | sudo passwd --stdin root
+    ##开启ssh root密码登录
+    sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
+    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    sudo systemctl restart sshd
+    # set root password
+    echo 'root' | sudo passwd --stdin root
 
-	##更换阿里云源
-	sudo mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
-	sudo curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-	sudo yum update -y
+    ##更换阿里云源
+    sudo mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
+    sudo curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+    sudo yum update -y
 
-	##安装常用工具
-	sudo yum install epel-release -y
-	sudo yum install tree lrzsz dos2unix net-tools -y
+    ##安装常用工具
+    sudo yum install epel-release -y
+    sudo yum install tree lrzsz dos2unix net-tools -y
 
-	#安装docker
-	sudo yum remove -y docker \
-					  docker-client \
-					  docker-client-latest \
-					  docker-common \
-					  docker-latest \
-					  docker-latest-logrotate \
-					  docker-logrotate \
-					  docker-selinux \
-					  docker-engine-selinux \
-					  docker-engine
+    #安装docker
+    sudo yum remove -y docker \
+         docker-client \
+         docker-client-latest \
+         docker-common \
+         docker-latest \
+         docker-latest-logrotate \
+         docker-logrotate \
+         docker-selinux \
+         docker-engine-selinux \
+         docker-engine
 
-	sudo yum install -y yum-utils \
-	  device-mapper-persistent-data \
-	  lvm2
+    #sudo yum install -y yum-utils \
+    #     device-mapper-persistent-data \
+    #     lvm2
 
-	sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-	sudo yum makecache fast
-	sudo yum -y install docker-ce
+    sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+    sudo yum makecache fast
+    sudo yum -y install docker-ce
 
-	sudo systemctl start docker
-	sudo systemctl enable docker
-	sudo docker version
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo docker version
 
-	##镜像加速
-	sudo mkdir -p /etc/docker
-	sudo tee /etc/docker/daemon.json <<-'EOF'
-	{
-	  "registry-mirrors": ["https://2apmvngw.mirror.aliyuncs.com"]
-	}
-	EOF
-	sudo systemctl daemon-reload
-	sudo systemctl restart docker
+    ##镜像加速
+    sudo mkdir -p /etc/docker
+    sudo tee /etc/docker/daemon.json <<-'EOF'
+    {
+     "registry-mirrors": ["https://2apmvngw.mirror.aliyuncs.com"]
+    }
+    EOF
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
 
-	##安装docker-compose
-	sudo curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/1.9.0/docker-compose-Linux-x86_64 -o /usr/bin/docker-compose
-	sudo chmod +x /usr/bin/docker-compose
-	sudo docker-compose -v
+    ##安装docker-compose
+    sudo curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/1.9.0/docker-compose-Linux-x86_64 -o /usr/bin/docker-compose
+    sudo chmod +x /usr/bin/docker-compose
+    sudo docker-compose -v
   SHELL
 end
 ```
 
 启动vagrant 主机
+
 ```bash
 vagrant up
 
@@ -125,6 +123,8 @@ su
 yum install -y supervisor
 
 # 生成模拟tomcat进程
+mkdir -p /www/wwwroot/app/
+
 cat > /etc/supervisord.d/tomcat.ini <<EOF
 [program:tomcat]
 process_name=%(program_name)s_%(process_num)02d
@@ -138,7 +138,7 @@ stdout_logfile=/www/wwwroot/app/worker.log
 EOF
 
 # 开启web管理，浏览器访问地址：192.168.11.150:9001 (user/123)
-sed -i '/\[supervisord\]/i\\[inet_http_server\]\nport=*:9001\nusername=user\npassword=123\n' supervisord.conf 
+sed -i '/\[supervisord\]/i\\[inet_http_server\]\nport=*:9001\nusername=user\npassword=123\n' supervisord.conf
 
 # 添加supervisord服务开机自启动 https://www.jianshu.com/p/e1c3e6fbae80
 
@@ -176,49 +176,27 @@ systemctl reload supervisord.service
 
 # 二、 常用命令
 
-- supervisorctl help		//获取帮助
-
-- supervisorctl reread    //重新读取服务配置，不会重启
-
-- supervisorctl update	//更新配置，并重启服务
-
-- supervisorctl status	//查看服务状态
-
-- supervisorctl pid		//获取supervisord 守护进程PID
-
-- supervisorctl pid+进程名//根据进程名获取PID
-
-- supervisorctl pid all	//获取所有服务进程PID
-
-- supervisorctl clear all	//清除所有进程日志文件
-
-- supervisorctl fg+进程名 //将指定进程调到前台，按Ctrl+C 退出前台
-
-- supervisorctl restart	//重启一个进程（不会重新读取进程配置文件）
-
-- supervisorctl restart+gname	//重启一个组里所有进程（不会重新读取进程配置文件）
-
-- supervisorctl restart <name><name> //重启多个进程或组（不会重新读取配置文件）
-
-- supervisorctl restart all	//重启所有进程，(不会重新读取配置文件）
-
-- supervisorctl start <name>	//启动一个进程
-
-- supervisorctl start <gname>	//启动一个组里所有进程
-
-- supervisorctl start <name><name> //启动多个进程或组
-
-- supervisorctl start all		//启动所有进程
-
-- supervisorctl stop <name>	//停止一个进程
-
-- supervisorctl stop <gname>:*	//停止一个组里所有进程
-
-- supervisorctl stop <name><name>	//停止多进程或组
-
-- supervisorctl stop all	//停止所有服务（不会自动重启）
-
-- supervisorctl tail [-f] <name> [stdout|stderr] (default stdout)	//倒序持续输出进程最新日志
-
-```
-
+命令|说明
+-|-
+supervisorctl help                  |获取帮助
+supervisorctl reread                |重新读取服务配置，不会重启
+supervisorctl update                |更新配置，并重启服务
+supervisorctl status                |查看服务状态
+supervisorctl pid                   |获取supervisord 守护进程PID
+supervisorctl pid+进程名             |根据进程名获取PID
+supervisorctl pid all               |获取所有服务进程PID
+supervisorctl clear all             |清除所有进程日志文件
+supervisorctl fg+进程名              |将指定进程调到前台，按Ctrl+C 退出前台
+supervisorctl restart               |重启一个进程（不会重新读取进程配置文件）
+supervisorctl restart+gname         |重启一个组里所有进程（不会重新读取进程配置文件）
+supervisorctl restart <name\><name\> |重启多个进程或组（不会重新读取配置文件）
+supervisorctl restart all           |重启所有进程，(不会重新读取配置文件）
+supervisorctl start <name\>         |启动一个进程
+supervisorctl start <gname\>        |启动一个组里所有进程
+supervisorctl start <name\><name\>  |启动多个进程或组
+supervisorctl start all             |启动所有进程
+supervisorctl stop <name\>          |停止一个进程
+supervisorctl stop <gname\>:*       |停止一个组里所有进
+supervisorctl stop <name\><name\>   |停止多进程或组
+supervisorctl stop all              |停止所有服务（不会自动重启）
+supervisorctl tail [-f] <name\> [stdout|stderr] (default stdout)  |倒序持续输出进程最新日志
