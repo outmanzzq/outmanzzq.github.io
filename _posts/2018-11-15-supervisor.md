@@ -199,4 +199,4 @@ supervisorctl stop <name\>          |停止一个进程
 supervisorctl stop <gname\>:*       |停止一个组里所有进
 supervisorctl stop <name\><name\>   |停止多进程或组
 supervisorctl stop all              |停止所有服务（不会自动重启）
-supervisorctl tail [-f] <name\> [stdout|stderr] (default stdout)  |倒序持续输出进程最新日志
+supervisorctl tail [-f] <name\> [stdout\|stderr] (default stdout)  |倒序持续输出进程最新日志
