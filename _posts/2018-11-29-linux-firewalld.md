@@ -136,7 +136,7 @@ rich rule
 </rule>
 ```
 
-# services
+## 6. services
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -166,7 +166,7 @@ destination
     ipv6="address[/mask]"
 ```
 
-## 6. ipset 配置
+## 7. ipset 配置
 
 ```xml
 系统默认没有 ipset 配置文件，需要手动创建 ipset 配置文件
@@ -189,7 +189,7 @@ firewall-cmd --get-ipsets 显示当前的 ipset
 firewall-cmd --permanent --add-rich-rule 'rule family="ipv4" source ipset="mytest" port port=80 protocol=tcp accept' 将 ipset 应用到策略中
 ```
 
-## 7. 服务管理
+## 8. 服务管理
 
 ```bash
  #安装firewalld
