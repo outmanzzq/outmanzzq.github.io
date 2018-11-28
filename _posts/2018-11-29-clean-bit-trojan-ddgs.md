@@ -1,9 +1,9 @@
 ---
 layout: post
 title: Linux 清理挖矿木马DDG
-categories: [cate1, cate2]
-description: some word here
-keywords: keyword1, keyword2
+categories: linux,bit,trojan
+description: Linux 清理挖矿木马DDG
+keywords: linux,bit,trojan
 ---
 
 > DDG挖矿病毒是一款在Linux系统下运行的恶意挖矿病毒，该病毒从去年一直活跃在现在，已经挖取了价值一千多万人民币的虚拟币货币，此病毒样本在一年左右的时间，已开发出了多个变种样本，此次发现的为DDG.3012/DDG3013挖矿版本。
