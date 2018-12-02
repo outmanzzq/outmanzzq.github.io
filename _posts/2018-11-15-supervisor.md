@@ -40,55 +40,56 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "../_sharefolders", "/vagrant", SharedFoldersEnableSymlinksCreate: true
 
   config.vm.provision "shell", inline: <<-SHELL
-  set -ex
-  sudo -i
+    set -ex
+    sudo -i
 
-  ##设置时区
-  timedatectl set-timezone Asia/Shanghai
+    ##设置时区
+    timedatectl set-timezone Asia/Shanghai
 
-  ##生成工作目录
-  mkdir -p /server/{tools,scripts,backup,docker-compose}
+    ##生成工作目录
+    mkdir -p /server/{tools,scripts,backup,docker-compose}
 
-  ##开启ssh root密码登录
-  sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
-  sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-  systemctl restart sshd
-  # set root password
-  echo 'root' |  passwd --stdin root
+    ##开启ssh root密码登录
+    sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    systemctl restart sshd
+    # set root password
+    echo 'root' |  passwd --stdin root
 
-  ##更换阿里云源
-  mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
-  curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-  yum update -y
+    ##更换阿里云源
+    mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
+    curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+    yum update -y
 
-  ##安装常用工具
-  yum install epel-release -y
-  yum install tree lrzsz dos2unix net-tools htop -y
+    ##安装常用工具
+    yum install epel-release -y
+    yum install tree lrzsz dos2unix net-tools htop -y
 
-  #安装docker
-  yum remove -y docker \
-       docker-client \
-       docker-client-latest \
-       docker-common \
-       docker-latest \
-       docker-latest-logrotate \
-       docker-logrotate \
-       docker-selinux \
-       docker-engine-selinux \
-       docker-engine
+    #安装docker
+    yum remove -y docker \
+         docker-client \
+         docker-client-latest \
+         docker-common \
+         docker-latest \
+         docker-latest-logrotate \
+         docker-logrotate \
+         docker-selinux \
+         docker-engine-selinux \
+         docker-engine
 
-  yum install -y yum-utils \
-       device-mapper-persistent-data \
-       lvm2
-  yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-  yum makecache fast
-  yum -y install docker-ce
-  systemctl start docker
-  systemctl enable docker
-  docker version
-  ##镜像加速
-mkdir -p /etc/docker
-tee /etc/docker/daemon.json <<EOF
+    yum install -y yum-utils \
+         device-mapper-persistent-data \
+         lvm2
+    yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+    yum makecache fast
+    yum -y install docker-ce
+    systemctl start docker
+    systemctl enable docker
+    docker version
+
+    ##镜像加速
+    mkdir -p /etc/docker
+    tee /etc/docker/daemon.json <<EOF
 {
  "registry-mirrors": ["https://2apmvngw.mirror.aliyuncs.com"]
 }
