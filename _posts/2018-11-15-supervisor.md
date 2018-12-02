@@ -35,71 +35,75 @@ Vagrantfile 文件内容：
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "centos/7"
+  config.vm.box = "centos/7.5-1809"
   config.vm.network "public_network", ip: "192.168.11.150"
-  config.vm.synced_folder "E:/", "/vagrant", type: "virtualbox"
+  config.vm.synced_folder "../_sharefolders", "/vagrant", SharedFoldersEnableSymlinksCreate: true
 
   config.vm.provision "shell", inline: <<-SHELL
-    ##设置时区
-    sudo timedatectl set-timezone Asia/Shanghai
+  set -ex
+  sudo -i
 
-    ##生成工作目录
-    sudo mkdir -p /server/{tools,scripts,backup,docker-compose}
+  ##设置时区
+  timedatectl set-timezone Asia/Shanghai
 
-    ##开启ssh root密码登录
-    sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
-    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-    sudo systemctl restart sshd
-    # set root password
-    echo 'root' | sudo passwd --stdin root
+  ##生成工作目录
+  mkdir -p /server/{tools,scripts,backup,docker-compose}
 
-    ##更换阿里云源
-    sudo mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
-    sudo curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-    sudo yum update -y
+  ##开启ssh root密码登录
+  sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config 
+  sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  systemctl restart sshd
+  # set root password
+  echo 'root' |  passwd --stdin root
 
-    ##安装常用工具
-    sudo yum install epel-release -y
-    sudo yum install tree lrzsz dos2unix net-tools -y
+  ##更换阿里云源
+  mv /etc/yum.repos.d/CentOS-Base.repo{,.backup}
+  curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+  yum update -y
 
-    #安装docker
-    sudo yum remove -y docker \
-         docker-client \
-         docker-client-latest \
-         docker-common \
-         docker-latest \
-         docker-latest-logrotate \
-         docker-logrotate \
-         docker-selinux \
-         docker-engine-selinux \
-         docker-engine
+  ##安装常用工具
+  yum install epel-release -y
+  yum install tree lrzsz dos2unix net-tools htop -y
 
-    #sudo yum install -y yum-utils \
-    #     device-mapper-persistent-data \
-    #     lvm2
+  #安装docker
+  yum remove -y docker \
+       docker-client \
+       docker-client-latest \
+       docker-common \
+       docker-latest \
+       docker-latest-logrotate \
+       docker-logrotate \
+       docker-selinux \
+       docker-engine-selinux \
+       docker-engine
 
-    sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-    sudo yum makecache fast
-    sudo yum -y install docker-ce
+  yum install -y yum-utils \
+       device-mapper-persistent-data \
+       lvm2
+  yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+  yum makecache fast
+  yum -y install docker-ce
+  systemctl start docker
+  systemctl enable docker
+  docker version
+  ##镜像加速
+mkdir -p /etc/docker
+tee /etc/docker/daemon.json <<EOF
+{
+ "registry-mirrors": ["https://2apmvngw.mirror.aliyuncs.com"]
+}
+EOF
 
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo docker version
+    systemctl daemon-reload
+    systemctl restart docker
 
-    ##镜像加速
-    sudo mkdir -p /etc/docker
-    sudo tee /etc/docker/daemon.json <<-'EOF'
-    {
-     "registry-mirrors": ["https://2apmvngw.mirror.aliyuncs.com"]
-    }
-    EOF
-    sudo systemctl daemon-reload
-    sudo systemctl restart docker
+    ##安装最新docker-compose
+    curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/\`curl -s https://mirrors.aliyun.com/docker-toolbox/linux/compose/ |egrep '^<a' |awk -F '">|</a>' '{print $2}' |sort -V |tail -1`docker-compose-Linux-x86_64 -o  /usr/bin/docker-compose
 
-    ##安装docker-compose
-    sudo curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/1.9.0/docker-compose-Linux-x86_64 -o /usr/bin/docker-compose
-    sudo chmod +x /usr/bin/docker-compose
-    sudo docker-compose -v
+    [ ! -f /usr/bin/docker-compose ] && !!
+    chmod +x /usr/bin/docker-compose
+    docker-compose -v
+    exit
   SHELL
 end
 ```
