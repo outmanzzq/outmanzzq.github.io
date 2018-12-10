@@ -133,7 +133,7 @@ mkdir -p /www/wwwroot/app/
 cat > /etc/supervisord.d/tomcat.ini <<EOF
 [program:tomcat]
 process_name=%(program_name)s_%(process_num)02d
-command=watch 'free -m'
+command=tail -f /www/wwwroot/app/worker.log
 autostart=true
 autorestart=true
 user=vagrant
@@ -146,6 +146,9 @@ EOF
 sed -i '/\[supervisord\]/i\\[inet_http_server\]\nport=*:9001\nusername=user\npassword=123\n' supervisord.conf
 
 # 添加supervisord服务开机自启动 https://www.jianshu.com/p/e1c3e6fbae80
+
+# 激活开机启动命令
+systemctl enable supervisord
 
 cat >/usr/lib/systemd/system/supervisord.service <<EOF
 # supervisord service for systemd (CentOS 7.0+)
@@ -166,14 +169,8 @@ RestartSec=42s
 WantedBy=multi-user.target
 EOF
 
-# 激活开机启动命令
-systemctl enable supervisord
-
 # 启动supervisor进程
 systemctl start supervisord
-
-# 关闭supervisor进程
-systemctl stop supervisord
 
 # 如果修改了supervisor.service文件，可以通过reload命令来重新加载配置文件
 systemctl reload supervisord.service
