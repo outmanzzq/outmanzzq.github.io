@@ -99,7 +99,7 @@ EOF
     systemctl restart docker
 
     ##安装最新docker-compose
-    curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/\`curl -s https://mirrors.aliyun.com/docker-toolbox/linux/compose/ |egrep '^<a' |awk -F '">|</a>' '{print $2}' |sort -V |tail -1`docker-compose-Linux-x86_64 -o  /usr/bin/docker-compose
+    curl -L https://mirrors.aliyun.com/docker-toolbox/linux/compose/$(curl -s https://mirrors.aliyun.com/docker-toolbox/linux/compose/ |egrep '^<a' |awk -F '">|</a>' '{print $2}' |sort -V |tail -1)docker-compose-Linux-x86_64 -o  /usr/bin/docker-compose
 
     [ ! -f /usr/bin/docker-compose ] && !!
     chmod +x /usr/bin/docker-compose
