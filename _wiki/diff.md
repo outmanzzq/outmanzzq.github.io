@@ -16,124 +16,57 @@ diff [参数][文件1或目录1][文件2或目录2]
 
 diff 命令能比较单个文件或者目录内容。如果指定比较的是文件，则只有当输入为文本文件时才有效。以逐行的方式，比较文本文件的异同处。如果指定比较的是目录的 的时候，diff 命令会比较两个目录下名字相同的文本文件。列出不同的二进制文件、公共子目录和只在一个目录出现的文件。
 
-# 3. 参数
+# 3. 常用参数说明
 
 ```bash
--a,--text 把所有文件当做文本文件逐行比较
--b,--ignore-space-change 忽略空格产生的变化
--B,--ignore-blank-lines 忽略空白行的变化
--c,–C NUM，--context[=NUM] 使用上下文输出格式（文件1在上，文件2在下，在差异点会标注出来），输出NUM（默认3）行的上下文（上下各NUM行，不包括差异行）
--d,--minimal 使用不同的算法，努力寻找一个较小的变化集合。这会使 diff 变慢（有时更慢）
--D NAME,--ifdef=NAME 合并if-then-else 格式输出，预处理宏（由 NAME 参数提供）条件
--e,--ed 输出一个ed格式的脚本文件
--E,--ignore-all-space 忽略由于 Tab 扩展而导致的变化
--F RE,--show-function-line=RE 在上下文输出格式（文件1在上，文件2在下）和统一输出格式中，对于每一大块的不同，显示出匹配RE（regexp 正则表达式）最近的行
--i,--ignore-case 忽略大小写的区别
--I RE,--ignore-matching-lines=RE 忽略所有匹配RE（regexp 正则表达式）的行的更改
--l,--paginate 通过 pr 编码传递输出，使其分页
--n,--rcs 输出 RCS 格式差异
+-a 预设只会逐行比较文本文件
 
--N,--new-file 把缺少的文件当做空白文件处理
+-b 忽略行尾的空格
+-B 不检查空白行
 
--p,--show-c-function 显示带有C函数的变化
+-c 用上下文输出格式，提供 n 行上下文
+-C 执行与 -c 命令相同
 
--q,--brief 仅输出文件是否有差异，不报告详细差异
+-d 使用不同的演算法，以较小的单位来做比较
 
--r,--recursive 当比较目录时，递归比较所有找到的子目录
+-f 输出的格式类似于ed 的script，但按照原来文件的顺序来显示不同处
 
--s,--report-identical-files 当两个文件相同时报告
+-H 比较大文件时可以加快速度
 
--S FILE,--starting-file=FILE 在比较目录时，从 FILE 开始。用于继续中断的比较
+-l 若比较的文件在某几行有所不同，而这几行同时都包含了选项中指定的字符或字符串，则不显示这两个文件的差异。
 
--t,--expand-tabs 将输出时扩展Tab转换为空格，保护输入文件的 tab 对齐方式
+-i 不检查大小写的不同
+-I 讲结果交由 pr 程序来分页
 
--T,--initial-tab 通过预先设置的 tab 使选项卡对齐（？？？）
+-n 将比较结果以 RCS 的格式来显示
+-N 在比较目录时，若文件 A 仅出现在某个目录中，则预设会显示。
 
--u,-U NUM,--unified[=NUM] 使用统一输出格式（输出一个整体，只有在差异的地方会输出差异点，并标注出来），输出NUM（默认3）行的上下文（上下各NUM行，不包括差异行）
+-p 若比较的文件为 C语言 的程序源文件时，则预设会显示
+-P 与 -N 类似，但只有当第二个目录包含了包含了第一个目录中没有的文件按时，才会将这个文件与空白的文件比较。
 
--v,--version 输出版本号
+-q 仅显示有无差异，不显示详细信息
 
--w,--ignore-all-space 比较时忽略所有空格
+-r 比较子目录中的文件
 
--W NUM,--width=NUM 在并列输出格式时，指定列的宽度为 NUM（默认130）
+-s 若没有发现任何差异，任然显示信息
+-S 在比较目录时，从指定的文件开始比较
 
--x PAT,--exclude=PAT 排除与 PAT（pattern样式）匹配的文件
+-t 在输出时将 tab 字符展开
+-T 在每行前面加上tab 字符以便对齐
 
--X FILE,--exclude-from=FILE 排除与 FILE 中样式匹配的文件
+-u，-U 以合并的方式来显示文件内容的不同
 
--y,--side-by-side 使用并列输出格式
+-v 显示版本信息
 
---from-file=FILE1 FILE1 与所有操作对象比较，FILE1 可以是目录
+-w 忽略全部的空格字符
+-W 在使用 -y 参数时，指定栏宽
 
---help 输出帮助信息
+-x 不比较选项中指定的文件或目录
+-X 可以将文件或目录类型存成文本文件，然后指定此文本文件
 
---horizon-lines=NUM 保留 NUM 行的公共前缀和后缀
+-y 以并列的方式显示文件的异同之处
 
---ignore-file-name-case 比较时忽略文件名大小写
-
---label LABEL 使用 LABEL（标识）代替文件名
-
---left-column （在并列输出格式中）只输出左列的公共行
-
---no- ignore-file-name-case 比较时考虑文件名大小写
-
---normal 输出一个正常的差异
-
---speed-large-files 假设文件十分大，而且有许多微小的差异
-
---strip-trailing-cr 去掉在输入时尾随的回车符
-
---suppress-common-lines 不输出公共行
-
---to-file=FILE2 所有操作对象与 FILE2 比较，FILE2 可以是目录
-
---unidiredtional-newfile 将缺少的第一个文件视为空文件
-
-
-
---GTYPE-group-format=GFMT 以 GFMT 格式化 GTYPE 输入组
-
---line-format=LFMT 以 LFMT 格式化输入所有行
-
---LTYPE-line-format=LFMT 以 LFMT 格式化 LTYPE 输入行
-
-LTYPE 可以是’old’,’new’或’unchanged’。GTYPE 可以是 LTYPE 选项或’changed’
-
-       GFMT 包括：
-
-              %< 该行属于FILE1
-
-              %> 该行属于FILE2
-
-              %= 该行属于FILE1和FILE2公共行
-
-              %[-][WIDTH（宽度）][.[PREC（精确度）]]{doxX}LETTER（字母） printf 格式规范 LETTER。如下字母表示属于新的文件，小写表示属于旧的文件：
-
-                     F 行组中第一行的行号
-
-                     L 行组中最后一行的行号
-
-                     N 行数（=L-F+1）
-
-                     E F-1
-
-                     M L+1
-
-       LFMT 可包含：
-
-              %L 该行内容
-
-              %l 该行内容，但不包括尾随的换行符
-
-              %[-][WIDTH][.[PREC]]{doxX}n printf 格式规范输入行编号
-
-       GFMT 或 LFMT 可包含：
-
-       %% %
-
-%c’C’ 单个字符C
-
-%c’\000’ 八进制 000 所代表的字符
+--help 显示帮助
 ```
 
 # 4. 实例
@@ -327,4 +260,4 @@ Only in dir2: text3
 
 `[xf@xuexi ~]$ vimdiff 1.txt 2.txt`
 
-> 原文链接：<https://www.cnblogs.com/diantong/p/9238348.html>
+> 参考链接：<https://www.cnblogs.com/ay-a/p/8232584.html>
