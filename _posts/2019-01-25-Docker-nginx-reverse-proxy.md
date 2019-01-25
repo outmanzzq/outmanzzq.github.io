@@ -8,13 +8,13 @@ keywords: Docker,nginx,Proxy
 
 > 最近在公司搭建了一个基于 [Gogs](https://gogs.io/) 的代码管理系统，以及基于 [Kanboard](https://kanboard.org/) 的任务管理系统等几个内部系统。由于部署在同一台机器上，基于不同的端口区分不同的服务。比如：
 >
-> - Git 服务 `http://10.10.1.110:10080 `
-> - 任务管理系统` http://10.10.1.110:8888`
+> - Git 服务`http://10.10.1.110:10080`
+> - 任务管理系统`http://10.10.1.110:8888`
 > - 其他
 >
 > 为了更好的使用，通过内部域名区分，比如 ：
 >
-> - Git 服务 `http://gogs.vking.io `
+> - Git 服务`http://gogs.vking.io`
 > - 任务管理系统 `http://task.vking.io`
 > - 其他
 >
@@ -59,7 +59,7 @@ http {
 # daemon off;
 ```
 
-- 新建反向代理设置文件 `reverse-proxy.conf `，存放路径为 `/srv/docker/nginx/conf.d/reverse-proxy.conf`
+- 新建反向代理设置文件 `reverse-proxy.conf`，存放路径为 `/srv/docker/nginx/conf.d/reverse-proxy.conf`
 
 ```nginx
 # If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
