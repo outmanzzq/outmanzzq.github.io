@@ -6,7 +6,7 @@ description: some word here
 keywords: docker,devops,git,jenkins,nginx
 ---
 
-> 在 {% post_url 2019-01-25-Docker-nginx-reverse-proxy %} 介绍了通过 [nginx](https://nginx.org/en/) 反向代理关联容器。此为真实的使用场景。通过 [Gitea](https://github.com/go-gitea/gitea) 作为代码管理工具；[Kanboard](https://github.com/kanboard/kanboard) 作为任务管理；[Jenkins](https://jenkins.io/) 作为 CI 工具。这样的组合比较适合小型团队使用，相比起 [GitLab](https://gitlab.com/) 这种巨无霸来说，部署简单，使用简单。
+> 在 [Docker nginx 反向代理设置](https://outmanzzq.github.io/2019/01/25/Docker-nginx-reverse-proxy/) 介绍了通过 [nginx](https://nginx.org/en/) 反向代理关联容器。此为真实的使用场景。通过 [Gitea](https://github.com/go-gitea/gitea) 作为代码管理工具；[Kanboard](https://github.com/kanboard/kanboard) 作为任务管理；[Jenkins](https://jenkins.io/) 作为 CI 工具。这样的组合比较适合小型团队使用，相比起 [GitLab](https://gitlab.com/) 这种巨无霸来说，部署简单，使用简单。
 
 ## 准备
 
