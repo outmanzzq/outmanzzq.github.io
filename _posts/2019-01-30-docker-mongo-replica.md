@@ -307,10 +307,13 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-### 进入 mongo shell 配置并初始化副本集
+### 进入 容器 mongo1 shell 手动配置并初始化副本集
 
-```mongo
-config = {
+```bash
+docker exec -it mongo1 mongo
+
+> db = (new Mongo('localhost:27017')).getDB('test'
+> config = {
     "_id" : "my-mongo-set",
     "members" : [
         {
@@ -329,10 +332,159 @@ config = {
 }
 
 # 初始化
-rs.initiate(config)
+> rs.initiate(config)
 
 ```
 
-使用 mgo 已经可以正常插入和查询数据
+> 验证复制集有效性参考上面
 
-> 原文链接：<https://www.jianshu.com/p/ec53891d638b>
+# 三、高级篇：采用 docker-compose 全自动配置
+
+## 1. 创建工作目录
+
+```bash
+mkdir -p /server/docker-compose/mongo-replica/{scripts,data}
+
+cd /server/docker-compose/mongo-replica
+```
+
+## 2. 生成 setup.sh 自动配置脚本
+
+```bash
+$ cat > scripts/setup.sh <<EOF
+#!/bin/bash
+
+mongodb1=`getent hosts ${MONGO1} | awk '{ print $1 }'`
+mongodb2=`getent hosts ${MONGO2} | awk '{ print $1 }'`
+mongodb3=`getent hosts ${MONGO3} | awk '{ print $1 }'`
+
+port=${PORT:-27017}
+
+echo "Waiting for startup.."
+until mongo --host ${mongodb1}:${port} --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' &>/dev/null; do
+  printf '.'
+  sleep 1
+done
+
+echo "Started.."
+
+echo setup.sh time now: `date +"%T" `
+mongo --host ${mongodb1}:${port} <<EOF
+   var cfg = {
+        "_id": "${RS}",
+        "protocolVersion": 1,
+        "members": [
+            {
+                "_id": 0,
+                "host": "${mongodb1}:${port}"
+            },
+            {
+                "_id": 1,
+                "host": "${mongodb2}:${port}"
+            },
+            {
+                "_id": 2,
+                "host": "${mongodb3}:${port}"
+            }
+        ]
+    };
+    rs.initiate(cfg, { force: true });
+    rs.reconfig(cfg, { force: true });
+EOF
+
+```
+
+## 3. 生成 docker-compose.yml 文件
+
+```bash
+$ cat > docker-compose.yml <<EOF
+version: '3'
+services:
+  mongo2:
+    container_name: "mongo2"
+    image: mongo:4.1.7
+    ports:
+      - "30012:27017"
+    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
+    restart: always
+
+  mongo3:
+    container_name: "mongo3"
+    image: mongo:4.1.7
+    ports:
+      - "30013:27017"
+    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
+    restart: always
+
+  mongo1:
+    container_name: "mongo1"
+    image: mongo:4.1.7
+    ports:
+      - "30011:27017"
+    command: mongod --replSet vision-set --bind_ip 0.0.0.0
+    links:
+      - mongo2:mongo2
+      - mongo3:mongo3
+    restart: always
+
+  mongo-vision-set-setup:
+    container_name: "mongo-vision-set-setup"
+    image: mongo:4.1.7
+    depends_on:
+      - "mongo1"
+      - "mongo2"
+      - "mongo3"
+    links:
+      - mongo1:mongo1
+      - mongo2:mongo2
+      - mongo3:mongo3
+    volumes:
+        - ./scripts:/scripts
+    environment:
+      - MONGO1=mongo1
+      - MONGO2=mongo2
+      - MONGO3=mongo3
+      - RS=vision-set
+    entrypoint: [ "/scripts/setup.sh" ]
+EOF
+
+# 检查配置
+docker-compose config
+
+# 启动
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+```
+
+## 4. 检查 mongo replica 配置是否成功
+
+```bash
+# 进入 mongo1 如果提示符变为 primary，则初始化基本成功
+docker exec -it mongo1 mongo
+
+vision-set:PRIMARY>
+
+# 先在 primary 数据库中插入数据：
+
+vision-set:PRIMARY> db.mycollection.insert({name : 'sample'})
+WriteResult({ "nInserted" : 1 })
+vision-set:PRIMARY> db.mycollection.find()
+{ "_id" : ObjectId("57761827767433de37ff95ee"), "name" : "sample" }
+
+# 然后新建一个与 secondary 数据库的连接，并测试文档是否在那里复制：
+
+vision-set:PRIMARY> db2 = (new Mongo('mongo2:27017')).getDB('test')
+test
+vision-set:PRIMARY> db2.setSlaveOk()
+vision-set:PRIMARY> db2.mycollection.find())
+{ "_id" : ObjectId("57761827767433de37ff95ee"), "name" : "sample" }
+```
+
+> 执行 db2.setSlaveOk() 命令来让 shell 知道我们故意在查询非 primary 的数据库。
+>
+> 参考链接：
+> - <https://www.jianshu.com/p/ec53891d638b>
+> - <https://github.com/senssei/mongo-cluster-docker>
