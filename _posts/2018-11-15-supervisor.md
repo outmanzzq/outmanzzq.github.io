@@ -180,11 +180,15 @@ systemctl reload supervisord.service
 
 ## 1. 通过 yum/apt 安装后，supervisor 的配置文件在：
 
-```/etc/supervisor/supervisord.conf```
+```bash
+/etc/supervisor/supervisord.conf
+```
 
 supervisor 的配置文件默认是不全的，不过在大部分默认的情况下，上面说的基本功能已经满足。而其管理的子进程配置文件在：
 
-```/etc/supervisor/conf.d/*.conf```
+```bash
+/etc/supervisor/conf.d/*.conf
+```
 
 然后，开始给自己需要的脚本程序编写一个子进程配置文件，让 supervisor 来管理它，放在 /etc/supervisor/conf.d/ 目录下，以 .conf 作为扩展名
 （每个进程的配置文件都可以单独分拆也可以把相关的脚本放一起）。如任意定义一个和脚本相关的项目名称的选项组（/etc/supervisor/conf.d/test.conf）：
