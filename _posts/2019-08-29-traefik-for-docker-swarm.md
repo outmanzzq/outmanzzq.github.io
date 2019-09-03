@@ -45,30 +45,29 @@ source  ~/.profile
 
 # 一、具体操作
 
-## 1. 创建并初始化 Docker Swarm 集群
+## 1.1 创建并初始化 Docker Swarm 集群
 
 ```bash
 # create docker-machine manager,work1,work2
-for host in manager worker1 worker2; do docker-machinec $host; done
+$ for host in manager worker1 worker2; do docker-machinec $host; done
 
 # init cluster
 ##manager
-docker-machine ssh manager "docker swarm init \
+$ docker-machine ssh manager "docker swarm init \
     --listen-addr $(docker-machine ip manager) \
     --advertise-addr $(docker-machine ip manager)"
 
-export worker_token=$(docker-machine ssh manager "docker swarm \
-join-token worker -q")
+$ export worker_token=$(docker-machine ssh manager "docker swarm join-token worker -q")
 
 ##worker1
-docker-machine ssh worker1 "docker swarm join \
+$ docker-machine ssh worker1 "docker swarm join \
     --token=${worker_token} \
     --listen-addr $(docker-machine ip worker1) \
     --advertise-addr $(docker-machine ip worker1) \
     $(docker-machine ip manager)"
 
 ##worker2
-docker-machine ssh worker2 "docker swarm join \
+$ docker-machine ssh worker2 "docker swarm join \
     --token=${worker_token} \
     --listen-addr $(docker-machine ip worker2) \
     --advertise-addr $(docker-machine ip worker2) \
@@ -80,12 +79,17 @@ ID                            HOSTNAME            STATUS              AVAILABILI
 tnc7tqgwjp5eqba0i1zji0mnj *   manager             Ready               Active              Leader              18.09.6
 lwvomgs80i85zzkh4ptwewpij     worker1             Ready               Active                                  18.09.6
 w2cgm0zib6dxs9d6mn07ladsf     worker2             Ready               Active                                  18.09.6
+
 ```
 
-## 2. 部署 Traefik
+## 1.2 部署 Traefik
 
 ```bash
-docker-machine ssh manager "docker service create \
+#创建 traefik 使用的网络
+docker-machine ssh manager "docker network create --driver=overlay traefik-net"
+
+# manager 节点部署 traefik 服务
+$ docker-machine ssh manager "docker service create \
     --name traefik \
     --constraint=node.role==manager \
     --publish 80:80 --publish 8080:8080 \
@@ -96,7 +100,7 @@ docker-machine ssh manager "docker service create \
     --docker.swarmMode \
     --docker.domain=traefik \
     --docker.watch \
-    --api"
+    --api"v
 ```
 
 启动参数说明：
@@ -110,7 +114,7 @@ docker-machine ssh manager "docker service create \
 --docker                            | 指定为 docker 引擎
 --api                               | 开启 WebUI 访问
 
-## 3. 部署应用
+## 1.3 部署应用
 
 ```bash
 #app1
@@ -138,7 +142,7 @@ z9re2mnl34k4  whoami1  replicated  1/1       containous/whoami:latest
 
 > 说明：通过 `--label traefik.backend.loadbalancer.sticky=true` 实现会话保持。
 
-## 4. 通过 Traefik 访问应用
+## 1.4. 通过 Traefik 访问应用
 
 ```bash
 #app1: whoami0
@@ -218,7 +222,7 @@ X-Forwarded-Server: 7403d79c27d0
 X-Real-Ip: 10.255.0.4
 ```
 
-## 5. 伸缩服务
+## 1.5 伸缩服务
 
 ```bash
 $ docker-machine ssh manager "docker service scale whoami0=5"
@@ -233,7 +237,7 @@ tjby5a5gfrti        whoami0             replicated          5/5                 
 246bcqk4imw1        whoami1             replicated          5/5                 containous/whoami:latest
 ```
 
-## 6. 测试会话保持
+## 1.6 测试会话保持
 
 ### 因 whoami0 未设置会话保持，故每次访问返回容器节点 IP 不同
 
@@ -293,5 +297,90 @@ IP: 10.0.0.18
 IP: 127.0.0.1
 IP: 10.0.0.18
 ```
+
+# 二、懒人版
+
+> 在初始化 docker-machine 集群后，其中 1.2，1.3 步骤可通过 Docker-compse 编排文件部署 Traefik 及 app 服务 直接替代
+
+## 2.1 manager 节点操作
+
+### docker-compose 单机模式
+
+```bash
+#登录manager，并安装 docker-compose 工具
+$ docker-machine ssh manager
+
+$ sudo curl -o /usr/local/bin/docker-compose https://mirrors.aliyun.com/docker-toolbox/linux/compose/1.21.2/docker-compose-Linux-x86_64 && \
+sudo chmod +x /usr/local/bin/docker-compose && \
+docker-compose -v
+
+#生成编排文件
+$ echo '
+version: "3"
+
+services:
+  reverse-proxy:
+    image: traefik
+    restart: always
+    command: --api --docker
+    networks:
+      - traefik-net
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
+  whoami0:
+    image: containous/whoami
+    restart: always
+    networks:
+      - traefik-net
+    labels:
+      - "traefik.backend=whoami0"
+      - "traefik.frontend.rule=Host:whoami0.traefik"
+
+  whoami1:
+    image: containous/whoami
+    restart: always
+    networks:
+      - traefik-net
+    labels:
+      - "traefik.backend=whoami1"
+      - "traefik.backend.loadbalancer.sticky=true"
+      - "traefik.frontend.rule=Host:whoami1.traefik"
+
+networks:
+  traefik-net:
+    driver: overlay
+
+' > docker-compose.yml
+
+#语法检查
+$ docker-compose config
+
+#运行
+$ docker-compose up -d
+
+#检查
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS                                                              NAMES
+5451484ec7f9        traefik             "/traefik --api --do…"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:8080->8080/tcp   docker_reverse-proxy_1
+3f782ace7aaf        containous/whoami   "/whoami"                About a minute ago   Up About a minute   80/tcp                                                             docker_whoami1_1
+30e1b5c721b4        containous/whoami   "/whoami"                About a minute ago   Up About a minute   80/tcp
+```
+
+> 后面测试参考 1.4 及以后步骤
+
+### docker swarm 集群模式
+
+待补充。。。
 
 > 参考链接： <https://docs.traefik.io/user-guide/swarm-mode/>
