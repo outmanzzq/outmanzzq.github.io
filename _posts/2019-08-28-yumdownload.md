@@ -10,6 +10,8 @@ keywords: yum,rpm
 >
 > yum install 安装完之后会自动清理安装包，如果只想通过 yum 下载软件的安装包，但是不需要进行安装的话，可以使用 yumdownloader 命令。
 
+## yumdownloader 软件安装（CentOS 7）
+
 yumdownloader 命令在软件包 yum-utils 里面。先安装 yum-utils ：
 
 `yum install yum-utils -y`
@@ -21,6 +23,10 @@ $ rpm -ql yum-utils |grep yumdownloader
 /usr/bin/yumdownloader
 /usr/share/man/man1/yumdownloader.1.gz
 ```
+
+## 实战 （CentOS 7）
+
+### 实战1: 离线安装 JDK
 
 比如只想下载 java-1.8.0-openjdk ,但是不安装，可以执行如下指令：
 
@@ -55,6 +61,79 @@ libfontenc-1.1.3-3.el7.x86_64.rpm                             ttmkfdir-3.0.9-42.
 libglvnd-egl-1.0.1-0.8.git5baa1e5.el7.x86_64.rpm              tzdata-java-2019b-1.el7.noarch.rpm
 libthai-0.1.14-9.el7.x86_64.rpm                               xorg-x11-fonts-Type1-7.5-9.el7.noarch.rpm
 libtiff-4.0.3-27.el7_3.x86_64.rpm                             xorg-x11-font-utils-7.5-21.el7.x86_64.rpm
+
+#离线安装
+$ cd /opt/java
+$ yum localinstall java-1.8.0-openjdk.x86_64 -y
+```
+
+### 实战2: 离线安装 nginx
+
+```bash
+# step1: 查询本机 nginx 是否已安装
+$ rpm -qa |grep nginx
+
+# step2: 查询 nginx rpm 包
+$ yum search nginx
+Loaded plugins: fastestmirror
+Repodata is over 2 weeks old. Install yum-cron? Or run: yum makecache fast
+Determining fastest mirrors
+ * base: mirrors.aliyun.com
+ * extras: mirrors.aliyun.com
+ * updates: mirrors.aliyun.com
+====================================================================================================================== N/S matched: nginx ======================================================================================================================
+pcp-pmda-nginx.x86_64 : Performance Co-Pilot (PCP) metrics for the Nginx Webserver
+
+  Name and summary matches only, use "search all" for everything.
+
+# step3: 缓存 nginx 及相关依赖包到本地（不安装）
+$ yumdownloader pcp-pmda-nginx.x86_64 --resolve --destdir=/opt/nginx/
+$ ll
+-rw-r--r-- 1 root root  31264 Jul  4  2014 mailcap-2.1.41-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  35504 Nov 21  2018 pcp-conf-4.1.0-5.el7_6.x86_64.rpm
+-rw-r--r-- 1 root root 448164 Nov 21  2018 pcp-libs-4.1.0-5.el7_6.x86_64.rpm
+-rw-r--r-- 1 root root  23504 Nov 21  2018 pcp-pmda-nginx-4.1.0-5.el7_6.x86_64.rpm
+-rw-r--r-- 1 root root  25372 Jul  4  2014 perl-Business-ISBN-2.06-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  24908 Jul  4  2014 perl-Business-ISBN-Data-20120719.001-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  33172 Jul  4  2014 perl-Compress-Raw-Bzip2-2.061-3.el7.x86_64.rpm
+-rw-r--r-- 1 root root  58788 Jul  4  2014 perl-Compress-Raw-Zlib-2.061-4.el7.x86_64.rpm
+-rw-r--r-- 1 root root  23384 Jul  4  2014 perl-Digest-1.17-245.el7.noarch.rpm
+-rw-r--r-- 1 root root  30468 Jul  4  2014 perl-Digest-MD5-2.52-3.el7.x86_64.rpm
+-rw-r--r-- 1 root root  15984 Jul  4  2014 perl-Encode-Locale-1.03-5.el7.noarch.rpm
+-rw-r--r-- 1 root root  13520 Jul  4  2014 perl-File-Listing-6.04-7.el7.noarch.rpm
+-rw-r--r-- 1 root root 117360 Jul  4  2014 perl-HTML-Parser-3.71-4.el7.x86_64.rpm
+-rw-r--r-- 1 root root  18464 Jul  4  2014 perl-HTML-Tagset-3.20-15.el7.noarch.rpm
+-rw-r--r-- 1 root root  26588 Jul  4  2014 perl-HTTP-Cookies-6.01-5.el7.noarch.rpm
+-rw-r--r-- 1 root root  21224 Nov 12  2018 perl-HTTP-Daemon-6.01-8.el7.noarch.rpm
+-rw-r--r-- 1 root root  14404 Jul  4  2014 perl-HTTP-Date-6.02-8.el7.noarch.rpm
+-rw-r--r-- 1 root root  83600 Jul  4  2014 perl-HTTP-Message-6.06-6.el7.noarch.rpm
+-rw-r--r-- 1 root root  17324 Jul  4  2014 perl-HTTP-Negotiate-6.01-5.el7.noarch.rpm
+-rw-r--r-- 1 root root 266004 Jul  4  2014 perl-IO-Compress-2.061-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  23496 Jul  4  2014 perl-IO-HTML-1.00-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  36660 Apr 25  2018 perl-IO-Socket-IP-0.21-5.el7.noarch.rpm
+-rw-r--r-- 1 root root 117320 Apr 25  2018 perl-IO-Socket-SSL-1.94-7.el7.noarch.rpm
+-rw-r--r-- 1 root root 210260 Jul  4  2014 perl-libwww-perl-6.05-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  24384 Jul  4  2014 perl-LWP-MediaTypes-6.02-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  11544 Jul  4  2014 perl-Mozilla-CA-20130114-5.el7.noarch.rpm
+-rw-r--r-- 1 root root  29328 Jul  4  2014 perl-Net-HTTP-6.06-2.el7.noarch.rpm
+-rw-r--r-- 1 root root  29096 Jul  4  2014 perl-Net-LibIDN-0.12-15.el7.x86_64.rpm
+-rw-r--r-- 1 root root 292308 Aug 11  2017 perl-Net-SSLeay-1.55-6.el7.x86_64.rpm
+-rw-r--r-- 1 root root  62356 Nov 21  2018 perl-PCP-PMDA-4.1.0-5.el7_6.x86_64.rpm
+-rw-r--r-- 1 root root  52744 Jul  4  2014 perl-TimeDate-2.30-2.el7.noarch.rpm
+-rw-r--r-- 1 root root 109040 Jul  4  2014 perl-URI-1.60-9.el7.noarch.rpm
+-rw-r--r-- 1 root root  18324 Jul  4  2014 perl-WWW-RobotRules-6.02-5.el7.noarch.rpm
+
+# step3: 离线安装 nginx
+$ cd /opt/nginx
+$ yum localinstall pcp-pmda-nginx.x86_64 -y
+
+# step4: 查询
+$ rpm -qa |grep nginx
+pcp-pmda-nginx-4.1.0-5.el7_6.x86_64
+
+# step5: 启动 nginx 服务,并设置开机自启动
+$ systemctl start nginx
+$ systemctl enable nginx
 ```
 
 > 原文链接：<https://www.linuxprobe.com/yumdownloader-download-rpm.html>
