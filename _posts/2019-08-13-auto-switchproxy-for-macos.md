@@ -98,11 +98,11 @@ $ echo <password> | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo n
         "HTTP(S) Proxy - Wi-Fi": [
             {
                 "name": "Turn on HTTP(S) Proxy",
-                "cmd": "echo <password> | sudo -S networksetup -setwebproxy 'Wi-Fi' 127.0.0.1 8080 && sudo networksetup -setsecurewebproxy 'Wi-Fi' 127.0.0.1 8080"
+                "cmd": "echo <password> | sudo -S networksetup -setwebproxy 'Wi-Fi' 127.0.0.1 8080 && sudo networksetup -setsecurewebproxy 'Wi-Fi' 127.0.0.1 8080 && exit"
             },
             {
                 "name": "Turn off HTTP(S) Proxy",
-                "cmd": "echo <password> | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo networksetup -setsecurewebproxystate 'Wi-Fi' off"
+                "cmd": "echo <password> | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo networksetup -setsecurewebproxystate 'Wi-Fi' off && exit"
             }
         ]
     }
@@ -135,17 +135,26 @@ $ echo <password> | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo n
       "HTTP(S) Proxy - Wi-Fi": [
         {
             "name": "Turn on HTTP(S) Proxy",
-            "cmd": "echo 'password' |  sudo -S networksetup -setsecurewebproxy 'Wi-Fi' 127.0.0.1 8080"
+            "cmd": "echo 'password' |  sudo -S networksetup -setsecurewebproxy 'Wi-Fi' 127.0.0.1 8080 && exit"
         },
         {
             "name": "Turn off HTTP(S) Proxy",
-            "cmd": "echo 'password' | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo networksetup -setsecurewebproxystate 'Wi-Fi' off"
+            "cmd": "echo 'password' | sudo -S networksetup -setwebproxystate 'Wi-Fi' off && sudo networksetup -setsecurewebproxystate 'Wi-Fi' off && exit"
         }
       ]
     }
   ]
 }
-
 ```
+
+## FAQ
+
+### 1. 关于通过 Shuttle 开启/关闭 proxy 后，调用系统 Terminal 窗口无法自动关闭问题
+
+在Terminal.app中，选择左上角菜单：
+
+终端=》偏好设置=》shell
+
+![ ](/images/20190813-auto-switchproxy-for-macos-01.jpg)
 
 > 原文链接：<https://tidyko.com/posts/67b16286.html>
