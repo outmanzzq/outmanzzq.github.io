@@ -182,4 +182,226 @@ sudo echo '/dev/sdb1    /home/wwwroot    ext4    defaults 1 2' >/etc/fstab
 sudo mount /dev/sdb1  /home/wwwroot
 ```
 
+# 二、进阶篇
+
+通过 Vagrantfile 自动添加硬盘,目标：
+
+- Software:  CentOS 7.6 on all nodes
+- Host Services:  
+  - node01: Management Server (IP:172.16.80.111)
+  - node02: Metadata Server (IP:172.16.80.112)   # 额外添加 2 块硬盘
+  - node03: Storage Server (IP:172.16.80.113)    # 额外添加 4 块硬盘
+  - node04: Client (IP:172.16.80.114)
+  - node05: Admon Server (IP:172.16.80.115) (可选项)
+
+- Storage:
+  - Storage servers with RAID-6, xfs, mounted to "/data".
+  - Metadata servers with RAID-1, ext4, mounted to "/mnt/md0".
+
+Vagrantfile 文件内容
+
+```YAML
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+common_servers = {
+    :bgfsmanager => '172.16.80.111', # Management Server
+    :bgfsclient => '172.16.80.114', # Client
+    :bgfsadmon => '172.16.80.115'  # Admon Server
+}
+
+metadata_servers = {
+    :bgfsmetadata => '172.16.80.112', # Metadata Server with RAID-1, ext4, mounted to "/mnt/md0"
+}
+
+storage_servers = {
+    :bgfstorage => '172.16.80.113', # Storage Server with RAID-6, xfs, mounted to "/data"
+}
+
+metadata_secondDisk='./msecondDisk.vdi'   # metadata 第二颗硬盘
+metadata_thirdDisk='./mthirdDisk.vdi'     # metadata 第三颗硬盘
+
+storage_secondDisk='./ssecondDisk.vdi'   # storage 第二颗硬盘
+storage_thirdDisk='./sthirdDisk.vdi'     # storage 第三颗硬
+storage_fourthDisk='./sfourthDisk.vdi'   # storage 第四颗硬盘
+storage_fivethDisk='./sfivethDisk.vdi'   # storage 第五颗硬盘
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "CentOS/7.6_19.02_x86-64"
+
+  common_servers.each do |beegfs_servers_name, beegfs_server_ip|
+    config.vm.define beegfs_servers_name do |beegfs_config|
+      beegfs_config.vm.hostname = "#{beegfs_servers_name.to_s}"
+      beegfs_config.vm.network :private_network, ip: beegfs_server_ip
+      beegfs_config.vm.provider "virtualbox" do |vb|
+        vb.name = beegfs_servers_name.to_s
+        #vb.memory = 4096
+
+        if beegfs_servers_name == 'bgfsmanager' then
+           echo beegfs_servers_name
+           exit
+        end
+      end
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+      set -e
+      sudo -i
+
+      sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+      sed -n '/PermitRootLogin/p' /etc/ssh/sshd_config && \
+      sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
+      sed -n '/^PasswordAuthentication yes/p' /etc/ssh/sshd_config && \
+      systemctl restart sshd && \
+      echo "root:vagrant" | chpasswd
+
+      # set synctime
+      yum install ntp -y
+      systemctl enable ntpd
+      sed -i 's/\(^OPTIONS=\).*/\1"-g -x"/g' /etc/sysconfig/ntpd
+      systemctl restart ntpd
+      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      # stop firewall
+      systemctl stop firewalld
+
+      # disable selinux
+      sed -i 's|^SELINUX=.*|SELINUX=disabled|g' /etc/selinux/config
+
+      # disable swap
+       swapoff -a
+       sed -i /swap/s/^/#/g /etc/fstab
+
+    SHELL
+  end
+
+  metadata_servers.each do |beegfs_servers_name, beegfs_server_ip|
+    config.vm.define beegfs_servers_name do |beegfs_config|
+      beegfs_config.vm.hostname = "#{beegfs_servers_name.to_s}"
+      beegfs_config.vm.network :private_network, ip: beegfs_server_ip
+      beegfs_config.vm.provider "virtualbox" do |vb|
+        vb.name = beegfs_servers_name.to_s
+        #vb.memory = 4096
+
+        # add secondDisk
+        unless File.exist?(metadata_secondDisk)
+          vb.customize ['createhd', '--filename', metadata_secondDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 0, '--device', 1, '--type', 'hdd', '--medium', metadata_secondDisk]
+
+        # add thirdDisk
+        unless File.exist?(metadata_thirdDisk)
+          vb.customize ['createhd', '--filename', metadata_thirdDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', metadata_thirdDisk]
+
+      end
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+      set -e
+      sudo -i
+
+      sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+      sed -n '/PermitRootLogin/p' /etc/ssh/sshd_config && \
+      sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
+      sed -n '/^PasswordAuthentication yes/p' /etc/ssh/sshd_config && \
+      systemctl restart sshd && \
+      echo "root:vagrant" | chpasswd
+
+      # set synctime
+      yum install ntp -y
+      systemctl enable ntpd
+      sed -i 's/\(^OPTIONS=\).*/\1"-g -x"/g' /etc/sysconfig/ntpd
+      systemctl restart ntpd
+      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      # stop firewall
+      systemctl stop firewalld
+
+      # disable selinux
+      sed -i 's|^SELINUX=.*|SELINUX=disabled|g' /etc/selinux/config
+
+      # disable swap
+       swapoff -a
+       sed -i /swap/s/^/#/g /etc/fstab
+
+    SHELL
+  end
+
+  storage_servers.each do |beegfs_servers_name, beegfs_server_ip|
+    config.vm.define beegfs_servers_name do |beegfs_config|
+      beegfs_config.vm.hostname = "#{beegfs_servers_name.to_s}"
+      beegfs_config.vm.network :private_network, ip: beegfs_server_ip
+      beegfs_config.vm.provider "virtualbox" do |vb|
+        vb.name = beegfs_servers_name.to_s
+        #vb.memory = 4096
+
+        # add secondDisk
+        unless File.exist?(storage_secondDisk)
+          vb.customize ['createhd', '--filename', storage_secondDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 0, '--device', 1, '--type', 'hdd', '--medium', storage_secondDisk]
+
+        # add thirdDisk
+        unless File.exist?(storage_thirdDisk)
+          vb.customize ['createhd', '--filename', storage_thirdDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', storage_thirdDisk]
+
+        # add fourthDisk
+        unless File.exist?(storage_fourthDisk)
+          vb.customize ['createhd', '--filename', storage_fourthDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 1, '--type', 'hdd', '--medium', storage_fourthDisk]
+
+        # add fivethDisk
+        unless File.exist?(storage_fivethDisk)
+          vb.customize ['createhd', '--filename', storage_fivethDisk, '--variant', 'Fixed', '--size', 1 * 1024 ]
+        end
+        #vb.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 1, '--type', 'hdd', '--medium', storage_fivethDisk]
+
+      end
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+      set -e
+      sudo -i
+
+      sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+      sed -n '/PermitRootLogin/p' /etc/ssh/sshd_config && \
+      sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
+      sed -n '/^PasswordAuthentication yes/p' /etc/ssh/sshd_config && \
+      systemctl restart sshd && \
+      echo "root:vagrant" | chpasswd
+
+      # set synctime
+      yum install ntp -y
+      systemctl enable ntpd
+      sed -i 's/\(^OPTIONS=\).*/\1"-g -x"/g' /etc/sysconfig/ntpd
+      systemctl restart ntpd
+      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      # stop firewall
+      systemctl stop firewalld
+
+      # disable selinux
+      sed -i 's|^SELINUX=.*|SELINUX=disabled|g' /etc/selinux/config
+
+      # disable swap
+       swapoff -a
+       sed -i /swap/s/^/#/g /etc/fstab
+
+    SHELL
+  end
+end
+```
+
+> 说明：
+> 1. 受 IDE 控制器盘符号限制，只能添加 4 块硬盘（00，01，10，11）
+> 2. SATA 控制器可添加多个，但目前未找到添加方法。。
+> 3. 查看 VBox 硬盘控制器命令:  VBoxManager showvminfo + vmname |grep 'Storage Controller'
+
 > 参考链接：<https://my.oschina.net/cxz001/blog/734167>
+> <http://www.kclouder.cn/centos7-beegfs/>
