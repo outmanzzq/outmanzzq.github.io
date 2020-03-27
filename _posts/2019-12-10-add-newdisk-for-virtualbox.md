@@ -401,7 +401,11 @@ end
 > 说明：
 > 1. 受 IDE 控制器盘符号限制，只能添加 4 块硬盘（00，01，10，11）
 > 2. SATA 控制器可添加多个，但目前未找到添加方法。。
-> 3. 查看 VBox 硬盘控制器命令:  VBoxManager showvminfo + vmname |grep 'Storage Controller'
+> 3. 查看 VBox 硬盘控制器命令:  
+
+```bash
+VBoxManager showvminfo + vmname |grep 'Storage Controller'
+```
 
 > 参考链接：<https://my.oschina.net/cxz001/blog/734167>
 > <http://www.kclouder.cn/centos7-beegfs/>
