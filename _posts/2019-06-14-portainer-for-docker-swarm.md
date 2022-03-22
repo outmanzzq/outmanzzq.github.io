@@ -111,32 +111,32 @@ Vagrant.configure("2") do |config|
       node_config.vm.provider "virtualbox" do |vb|
         vb.name = node_servers_name.to_s
       end
+
+      config.vm.provision "shell", inline: <<-SHELL
+        sudo -i
+  
+        sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+        sed -n '/PermitRootLogin/p' /etc/ssh/sshd_config && \
+        sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
+        sed -n '/^PasswordAuthentication yes/p' /etc/ssh/sshd_config && \
+        systemctl restart sshd && \
+        echo "root:vagrant" |sudo chpasswd
+  
+        ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  
+        # stop firewall
+        systemctl stop firewalld
+        systemctl disable firewalld
+  
+        # disable selinux
+        sed -i 's/\(^SELINUX=\).*/\1disabled/g' /etc/selinux/config
+  
+        # disable swap
+        #swapoff -a
+        #sed -i /swap/s/^/#/g /etc/fstab
+        sh /vagrant/scripts/install_dockerCE_docker-compose.sh
+      SHELL
     end
-
-    config.vm.provision "shell", inline: <<-SHELL
-      sudo -i
-
-      sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
-      sed -n '/PermitRootLogin/p' /etc/ssh/sshd_config && \
-      sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
-      sed -n '/^PasswordAuthentication yes/p' /etc/ssh/sshd_config && \
-      systemctl restart sshd && \
-      echo "root:vagrant" |sudo chpasswd
-
-      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-      # stop firewall
-      systemctl stop firewalld
-      systemctl disable firewalld
-
-      # disable selinux
-      sed -i 's/\(^SELINUX=\).*/\1disabled/g' /etc/selinux/config
-
-      # disable swap
-      #swapoff -a
-      #sed -i /swap/s/^/#/g /etc/fstab
-      sh /vagrant/scripts/install_dockerCE_docker-compose.sh
-    SHELL
   end
 end
 
