@@ -112,7 +112,7 @@ Vagrant.configure("2") do |config|
         vb.name = node_servers_name.to_s
       end
 
-      config.vm.provision "shell", inline: <<-SHELL
+      node_config.vm.provision "shell", inline: <<-SHELL
         sudo -i
   
         sed -i  's/^#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
