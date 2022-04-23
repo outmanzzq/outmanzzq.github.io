@@ -7,13 +7,13 @@ keywords: docker,k8s,devops
 ---
 
 > 各环境简写相关说明：
-> - Dev：开发环境
-> - Fat：测试环境
-> - Uat：预发环境
-> - Lpt：性能测试
-> - Pro：生产环境
+> - **dev:** 开发环境
+> - **fat:** &nbsp;测试环境
+> - **uat:** 预发环境
+> - **lpt:** &nbsp;性能测试
+> - **pro:** 生产环境
 
-## 1.环境准备工作
+## 1. 环境准备工作
 
 先删除 Infra 名称空间中部署的 Apollo 服务
 
@@ -39,7 +39,7 @@ kubectl delete -f http://k8s-yaml.zq.com/apollo-portal/dp.yaml
 
 zk 拆分最简单,只需要在 DNS 那里修改解析规则即可：
 
-同时添加好 ApoLlo、Dubbo 两个环境的域名解析
+同时添加好 Apollo、Dubbo 两个环境的域名解析
 
 ```sh
 vi /var/named/zq.com.zone
@@ -151,7 +151,7 @@ kubectl apply -f http://k8s-yaml.zq.com/apollo-portal/cm.yaml
 
 ## 2 部署新环境的 Apollo 服务
 
-`7.200`运维机操作
+`7.200` 运维机操作
 
 ### 2.1 先创建出所需目录和文件
 
@@ -580,7 +580,7 @@ kubectl apply -f http://k8s-yaml.zq.com/prod/dubbo-demo-consumer/ingress.yaml
 | ---------- | ----------------------------------------- |
 | app_name   | dubbo-demo-consumer                       |
 | image_name | app/dubbo-demo-consumer                   |
-| git_repo   | git@gitee.com:noah-luo/dubbo-demo-web.git |
+| git_repo   | git@gitee.com/outmanzzq/dubbo-demo-web.git |
 | git_ver    | apollo                                    |
 | add_tag    | 200513_1808                               |
 | mvn_dir    | ./                                        |
