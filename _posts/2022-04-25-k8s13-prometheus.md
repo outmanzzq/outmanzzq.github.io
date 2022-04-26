@@ -461,17 +461,21 @@ spec:
 EOF
 ```
 
-> 人为影响 K8S  调度策略的三种方法：
->
+> **人为影响 K8S  调度策略的三种方法：**
 > - 污点、容忍度方法
 >   - 污点：运算节点 Node 上的污点
 >   - 容忍度：Pod 是否能够容忍污点
 > - nodename：让 Pod 运行在指定的 node 上
 > - nodeSelector：通过标签选择器，让 Pod 运行在指定的一类 Node 上
 >
-> Tolerations:  预期结果
->
-> - 当遇到 key = xx  这个标签时，执行 effect 动作（不调度）
+> **Tolerations:  容忍度**
+> - 当匹配到 key = xx  这个标签时，执行 effect 动作（不调度）
+> 
+>   如果已在指定 node 打污点（taint）,后面的 DP 如果想调度到污点 Node，就必须加 tolerations(容忍) 标签
+>   
+> **给 Node 加污点，常用用途：**
+> - 指定特定服务在特定 Node 执行
+> - 目标 Node 准备下线维护、退租（需要排空 Pod)
 >
 > 具体参考：<https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/>
 
