@@ -1274,7 +1274,7 @@ kubectl apply  -f http://k8s-yaml.zq.com/test/dubbo-demo-server/dp.yaml
 kubectl apply  -f http://k8s-yaml.zq.com/test/dubbo-demo-consumer/dp.yaml
 ```
 
-![img](https://img2018.cnblogs.com/blog/1034759/201912/1034759-20191218115443784-1236702705.png)
+![img](/images/20220425-k8s13-prometheus-08.png)
 
 **至此,所有 9 个服务,都获取了数据**
 
