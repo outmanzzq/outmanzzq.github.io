@@ -68,13 +68,13 @@ kubectl create ns prod
 ```sh
 kubectl create secret docker-registry harbor \
     --docker-server=harbor.zq.com \
-    --docker-username=harbor \
+    --docker-username=admin \
     --docker-password=Harbor12345 \
     -n test
 
 kubectl create secret docker-registry harbor \
     --docker-server=harbor.zq.com \
-    --docker-username=harbor \
+    --docker-username=admin \
     --docker-password=Harbor12345 \
     -n prod
 ```
