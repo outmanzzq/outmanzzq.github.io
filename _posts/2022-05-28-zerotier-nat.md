@@ -1,11 +1,11 @@
 ---
 layout: post
-title: zerotier 充当网关实现内网互联,访问其它节点内网
+title: Zerotier 充当网关实现内网互联,访问其它节点内网
 categories: vpn,nat
-description: zerotier 是一个软交换机，使用 zerotier 可以让多台内网机器组成一个局域网。
+description: Zerotier 是一个软交换机，使用 Zerotier 可以让多台内网机器组成一个局域网。
 keywords: vpn,nat,zerotier
 ---
-> 本节知识点:建议学习和理解并掌握 iptables/route 运行原理和机制.
+> 本节知识点:建议学习和理解并掌握 Iptables/Route 运行原理和机制.
 
 - 官网: <https://www.zerotier.com>
 - 文档: <https://docs.zerotier.com>
@@ -67,21 +67,21 @@ iptables-save
 ```sh
 # 创建桥接网卡
 
-##添加桥接网卡br0
+##添加桥接网卡 br0
 brctl addbr br0
 
  ##查看
 brctl show
 ifconfig br0 172.25.47.104/24 ##给br0配置ip172.25.7.11
-brctl addif br0 eth0 #添加真实物理网卡到桥接br0上
-brctl addif br0 ztxxxx #添加zerotier网卡到桥接br0上
+brctl addif br0 eth0 #添加真实物理网卡到桥接 br0 上
+brctl addif br0 ztxxxx #添加zerotier网卡到桥接 br0 上
 ping 172.25.7.254 ##测试，是否可以正常使用。
 
 #删除桥接网卡
-brctl delif br0 eth0 #从桥接中移出物理网卡eth0
-brctl delif br0 ztxxx #从桥接网卡中移除zt网卡
-ifconfig br0 down ## 关闭桥接网卡br0
-brctl delbr br0 ##删除桥接网卡br0
+brctl delif br0 eth0 #从桥接中移出物理网卡 eth0
+brctl delif br0 ztxxx #从桥接网卡中移除 zt 网卡
+ifconfig br0 down ## 关闭桥接网卡 br0
+brctl delbr br0 ##删除桥接网卡 br0
 brctl show ##查看桥接是否存在
 
 #以上命令创建的网卡,会在重启丢失,下面是修改配置文件来实现持久化.
