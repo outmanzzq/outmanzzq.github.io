@@ -42,7 +42,8 @@ keywords: vpn,nat,zerotier
 
 ### 3.防火墙设置
 
-- 基于 iptables 
+- **基于 iptables**
+
 ```sh
 #其中的 ztyqbub6jp 在不同的机器中不一样，你可以在路由器ssh环境中用 zerotier-cli listnetworks 或者 ifconfig 查询zt开头的网卡名
 iptables -I FORWARD -i ztyqbub6jp -j ACCEPT
@@ -53,7 +54,7 @@ iptables -t nat -I POSTROUTING -o ztyqbub6jp -j MASQUERADE
 iptables-save 
 ```
 
-- 基于 firewalld （OS >= CentOS 7）
+- **基于 firewalld** （OS >= CentOS 7）
 
 ```sh
 systemctl start firewalld
@@ -63,6 +64,7 @@ firewall-cmd --zone=public --add-interface=ztyqbub6jp
 firewall-cmd --list-all
 
 firewall-cmd --permanent --add-masquerade --zone=public
+# 通过 zerotier 访问 192.168.1.0/24 网段
 firewall-cmd --permanent --direct --passthrough ipv4 -t nat -I POSTROUTING -o ztyqbub6jp -j MASQUERADE -s 192.168.1.0/24
 firewall-cmd  --reload
 ```
