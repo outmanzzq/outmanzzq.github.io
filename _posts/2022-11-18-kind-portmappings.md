@@ -5,7 +5,6 @@ categories: kind,k8s,devops
 description: 通过 kind 工具快速搭建 K8S 测试集群，并将集群内部微服务暴露到宿主机，以方便外部访问。
 keywords: kind,k8s,devops
 ---
-> ![ ](/images/xxx.png)
 > 通过 kind 工具快速搭建 K8S 测试集群，并将集群内部微服务暴露到宿主机，以方便外部访问。
 
 
@@ -167,7 +166,7 @@ users:
 
 ## kind创建k8s集群的架构图为：
 
-![ ](20221118-kind-portmappings-01.png)
+![ ](/images/20221118-kind-portmappings-01.png)
 
 > 说明：
 > 1. 实际 kind 镜像内部采用更轻量化的 Containerd 替代 Docker 做为容器引擎
